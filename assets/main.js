@@ -23,8 +23,23 @@
     burger.addEventListener('click', function () { setNav(!drawer.classList.contains('open')); });
     drawer.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setNav(false); }); });
     document.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Escape' && drawer.classList.contains('open')) { setNav(false); burger.focus(); }
+      if (ev.key === 'Escape' && drawer.classList.contains('open')) { setNav(false); }
     });
+    // if the viewport grows past the mobile breakpoint while the drawer is open, the drawer and burger
+    // disappear via CSS: release the background so the visible page stays usable
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(min-width: 961px)');
+      var onWide = function (e) {
+        if (e.matches && drawer.classList.contains('open')) {
+          setNav(false);
+          var navLink = document.querySelector('.nav a');
+          if (navLink) navLink.focus();
+        }
+      };
+      if (mq.addEventListener) mq.addEventListener('change', onWide); else if (mq.addListener) mq.addListener(onWide);
+      // belt and braces: some embedded/emulated viewports resize without firing the media-query change event
+      window.addEventListener('resize', function () { onWide({ matches: window.innerWidth >= 961 }); });
+    }
   }
 
   /* scroll reveal (elements start visible when JS is off; see .js .rv in CSS) */

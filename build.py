@@ -5,7 +5,7 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "9"
+VER = "11"
 BASE_URL = "https://eurekastudio5.github.io/rb-salon-mock-2026/"  # 本番公開時は本番ドメインに変更
 
 SHOP = dict(
@@ -196,7 +196,7 @@ def header(active):
 <header class="header">
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="RE・BORN hair & relax ホーム"><img src="img/logo.png" alt="RE・BORN hair &amp; relax" width="320" height="72"><small>Takasaki</small></a>
-    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}予約フォーム</a></nav>
+    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a></nav>
     <button class="burger" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -264,7 +264,7 @@ def footer(fname=""):
 <nav class="stickybar" aria-label="予約・お問い合わせ">
   <a href="{SHOP['tel_href']}">{ICON['tel']}<b>電話する</b></a>
   <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINEで相談・予約</b></a>
-  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"入力欄へ戻る" if fname == "reserve.html" else "予約フォーム"}</b></a>
+  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"入力欄へ戻る" if fname == "reserve.html" else "予約フォーム(LINE)"}</b></a>
 </nav>'''
 
 def jsonld():
