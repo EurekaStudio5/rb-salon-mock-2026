@@ -1,26 +1,30 @@
-/* RE・BORN hair & relax — site scripts (mock v1) */
+/* RE・BORN hair & relax — site scripts (mock v2) */
 (function () {
   'use strict';
+  document.documentElement.classList.remove('no-js');
+  document.documentElement.classList.add('js');
 
   /* mobile nav */
   var burger = document.querySelector('.burger');
   var drawer = document.querySelector('.drawer');
+  function setNav(open) {
+    drawer.classList.toggle('open', open);
+    document.body.classList.toggle('nav-open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+    if (open) { drawer.removeAttribute('inert'); drawer.querySelector('a').focus(); }
+    else { drawer.setAttribute('inert', ''); }
+  }
   if (burger && drawer) {
-    burger.addEventListener('click', function () {
-      var open = drawer.classList.toggle('open');
-      document.body.classList.toggle('nav-open', open);
-      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    drawer.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function () {
-        drawer.classList.remove('open');
-        document.body.classList.remove('nav-open');
-        burger.setAttribute('aria-expanded', 'false');
-      });
+    drawer.setAttribute('inert', '');
+    burger.addEventListener('click', function () { setNav(!drawer.classList.contains('open')); });
+    drawer.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setNav(false); }); });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && drawer.classList.contains('open')) { setNav(false); burger.focus(); }
     });
   }
 
-  /* scroll reveal */
+  /* scroll reveal (elements start visible when JS is off; see .js .rv in CSS) */
   var rv = document.querySelectorAll('.rv');
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
@@ -35,48 +39,57 @@
     rv.forEach(function (el) { el.classList.add('in'); });
   }
 
-  /* lightbox (gallery) */
+  /* lightbox (gallery) — native <dialog> for focus trapping */
   var links = Array.prototype.slice.call(document.querySelectorAll('.gallery a'));
-  var lb = document.querySelector('.lightbox');
-  if (links.length && lb) {
+  var lb = document.querySelector('dialog.lightbox');
+  if (links.length && lb && typeof lb.showModal === 'function') {
     var img = lb.querySelector('img');
     var idx = 0;
     function show(i) {
       idx = (i + links.length) % links.length;
       img.src = links[idx].getAttribute('href');
       img.alt = links[idx].querySelector('img').alt || '';
-      lb.classList.add('open');
+      if (!lb.open) lb.showModal();
     }
     links.forEach(function (a, i) {
       a.addEventListener('click', function (ev) { ev.preventDefault(); show(i); });
     });
-    lb.querySelector('.close').addEventListener('click', function () { lb.classList.remove('open'); });
-    lb.querySelector('.prev').addEventListener('click', function (ev) { ev.stopPropagation(); show(idx - 1); });
-    lb.querySelector('.next').addEventListener('click', function (ev) { ev.stopPropagation(); show(idx + 1); });
-    lb.addEventListener('click', function (ev) { if (ev.target === lb) lb.classList.remove('open'); });
-    document.addEventListener('keydown', function (ev) {
-      if (!lb.classList.contains('open')) return;
-      if (ev.key === 'Escape') lb.classList.remove('open');
+    lb.querySelector('.close').addEventListener('click', function () { lb.close(); });
+    lb.querySelector('.prev').addEventListener('click', function () { show(idx - 1); });
+    lb.querySelector('.next').addEventListener('click', function () { show(idx + 1); });
+    lb.addEventListener('click', function (ev) { if (ev.target === lb) lb.close(); });
+    lb.addEventListener('keydown', function (ev) {
       if (ev.key === 'ArrowLeft') show(idx - 1);
       if (ev.key === 'ArrowRight') show(idx + 1);
     });
+    lb.addEventListener('close', function () { img.removeAttribute('src'); });
   }
 
   /* reservation form → LINE message */
   var form = document.getElementById('resv-form');
   if (form) {
     var LINE_ID = form.getAttribute('data-line-id'); // e.g. @gvx0556j
+    var LINE_ADD = form.getAttribute('data-line-add');
     var preview = document.getElementById('resv-preview');
     var copyBtn = document.getElementById('resv-copy');
+    var fallback = document.getElementById('resv-fallback');
+    var errBox = document.getElementById('resv-error');
+    var CLOSED_DAYS = [1, 2]; // 月・火
+    var LAST_CUT = '18:30', LAST_OTHER = '18:00';
 
-    // default date = tomorrow, min = today
-    var d1 = form.querySelector('[name="date1"]');
-    var d2 = form.querySelector('[name="date2"]');
-    var today = new Date();
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
     var iso = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
-    if (d1) { d1.min = iso(today); }
-    if (d2) { d2.min = iso(today); }
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    ['date1', 'date2'].forEach(function (n) { var el = form.querySelector('[name="' + n + '"]'); if (el) el.min = iso(today); });
+
+    // preselect menu from ?menu=...
+    try {
+      var q = new URLSearchParams(location.search).get('menu');
+      var sel = form.querySelector('[name="menu"]');
+      if (q && sel) {
+        Array.prototype.forEach.call(sel.options, function (o) { if (o.value === q) sel.value = q; });
+      }
+    } catch (e) { /* ignore */ }
 
     function val(name) {
       var el = form.querySelector('[name="' + name + '"]');
@@ -87,58 +100,102 @@
       }
       return (el.value || '').trim();
     }
-    function fmtDate(s) {
-      if (!s) return '';
+    function parseDate(s) {
       var p = s.split('-');
-      if (p.length !== 3) return s;
+      if (p.length !== 3) return null;
       var d = new Date(+p[0], +p[1] - 1, +p[2]);
-      var w = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
-      return +p[1] + '月' + +p[2] + '日(' + w + ')';
+      return isNaN(d.getTime()) ? null : d;
     }
+    function fmtDate(s) {
+      var d = parseDate(s);
+      if (!d) return s;
+      var w = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+      return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日(' + w + ')';
+    }
+    function isCutOnly(menu) { return menu === 'カット' || menu === 'メンズカット＋シェービング'; }
     function buildText() {
       var lines = [];
-      lines.push('【ご予約希望】ホームページから');
+      lines.push('【ご予約希望】ホームページの予約フォームから');
       lines.push('お名前：' + val('name') + ' 様');
       lines.push('ご利用：' + val('visit'));
-      lines.push('メニュー：' + val('menu'));
-      var t1 = fmtDate(val('date1')) + ' ' + val('time1');
-      lines.push('第1希望：' + t1.trim());
-      if (val('date2')) { lines.push('第2希望：' + (fmtDate(val('date2')) + ' ' + val('time2')).trim()); }
+      lines.push('メニュー：' + val('menu') + (/^初回限定/.test(val('menu')) ? '（初回限定価格の利用あり）' : ''));
+      lines.push('第1希望：' + (fmtDate(val('date1')) + ' ' + val('time1')).trim());
+      if (val('date2') || val('time2')) { lines.push('第2希望：' + (fmtDate(val('date2')) + ' ' + val('time2')).trim()); }
       lines.push('ご指名：' + (val('stylist') || '指名なし'));
       if (val('tel')) { lines.push('電話番号：' + val('tel')); }
       if (val('note')) { lines.push('ご要望：' + val('note')); }
       return lines.join('\n');
     }
+    function fieldEl(n) { return form.querySelector('[name="' + n + '"]'); }
     function validate() {
-      var ok = true;
-      ['name', 'menu', 'date1', 'time1'].forEach(function (n) {
-        var el = form.querySelector('[name="' + n + '"]');
-        if (el && !val(n)) { ok = false; el.setAttribute('aria-invalid', 'true'); el.focus(); }
-        else if (el) { el.removeAttribute('aria-invalid'); }
-      });
-      return ok;
+      var errors = [];
+      form.querySelectorAll('[aria-invalid]').forEach(function (el) { el.removeAttribute('aria-invalid'); });
+      function bad(n, msg) { errors.push({ el: fieldEl(n), msg: msg }); }
+      if (!val('name')) bad('name', 'お名前をご入力ください。');
+      if (!val('menu')) bad('menu', 'ご希望メニューを選択してください。');
+      if (val('visit') === '2回目以降' && /^初回限定/.test(val('menu'))) bad('menu', '初回限定メニューは初めての方限定です。通常メニューをお選びください。');
+      var checkSlot = function (dn, tn, label, required) {
+        var ds = val(dn), ts = val(tn);
+        if (!ds && !ts) { if (required) { bad(dn, label + 'の日にちを選択してください。'); bad(tn, label + 'の時間を選択してください。'); } return; }
+        if (!ds) { bad(dn, label + 'の日にちを選択してください。'); return; }
+        if (!ts) { bad(tn, label + 'の時間を選択してください。'); return; }
+        var d = parseDate(ds);
+        if (!d) { bad(dn, label + 'の日付が正しくありません。'); return; }
+        if (d < today) { bad(dn, label + 'は今日以降の日付を選択してください。'); return; }
+        if (CLOSED_DAYS.indexOf(d.getDay()) >= 0) { bad(dn, label + '：月曜日・火曜日は定休日です。別の日をお選びください。'); return; }
+        var last = isCutOnly(val('menu')) ? LAST_CUT : LAST_OTHER;
+        if (ts > last) { bad(tn, label + '：このメニューの最終受付は ' + last + ' です。'); return; }
+        if (d.getTime() === today.getTime()) {
+          var now = new Date(), hm = pad(now.getHours()) + ':' + pad(now.getMinutes());
+          if (ts <= hm) bad(tn, label + '：本日のこの時間は過ぎています。当日のご予約はお電話が確実です。');
+        }
+      };
+      checkSlot('date1', 'time1', '第1希望', true);
+      checkSlot('date2', 'time2', '第2希望', false);
+      if (buildText().length > 1500) bad('note', 'ご要望が長すぎます。1,500文字以内にまとめるか、お電話でご相談ください。');
+      if (errors.length) {
+        var seen = {};
+        errors.forEach(function (e) { if (e.el) e.el.setAttribute('aria-invalid', 'true'); });
+        var msgs = errors.map(function (e) { return e.msg; }).filter(function (m) { if (seen[m]) return false; seen[m] = true; return true; });
+        if (errBox) { errBox.innerHTML = '<b>ご確認ください</b><ul>' + msgs.map(function (m) { return '<li>' + m.replace(/[<>&]/g, '') + '</li>'; }).join('') + '</ul>'; errBox.hidden = false; }
+        // focus the first invalid field in DOM order
+        var first = form.querySelector('[aria-invalid="true"]');
+        if (first) { first.focus(); first.scrollIntoView({ block: 'center' }); }
+        return false;
+      }
+      if (errBox) errBox.hidden = true;
+      return true;
+    }
+    function lineUrl(text) { return 'https://line.me/R/oaMessage/' + encodeURIComponent(LINE_ID) + '/?' + encodeURIComponent(text); }
+    function showPreview(text) {
+      if (preview) { preview.textContent = text; preview.classList.add('show'); }
+      if (fallback) {
+        fallback.innerHTML = 'LINEが開かない場合は、<a href="' + lineUrl(text) + '" target="_blank" rel="noopener">こちらをタップ</a>するか、上の内容をコピーして公式LINE（<a href="' + LINE_ADD + '" target="_blank" rel="noopener">友だち追加</a>）のトークに貼り付けて送信してください。';
+        fallback.hidden = false;
+      }
     }
     form.addEventListener('input', function () {
       if (preview && preview.classList.contains('show')) { preview.textContent = buildText(); }
     });
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
-      if (!validate()) { alert('必須項目（お名前・メニュー・第1希望日時）をご入力ください。'); return; }
+      if (!validate()) return;
       var text = buildText();
-      if (preview) { preview.textContent = text; preview.classList.add('show'); }
-      var url = 'https://line.me/R/oaMessage/' + encodeURIComponent(LINE_ID) + '/?' + encodeURIComponent(text);
-      window.open(url, '_blank', 'noopener');
+      showPreview(text);
+      var w = window.open(lineUrl(text), '_blank', 'noopener');
+      if (!w) { /* popup blocked: fallback link is already visible */ }
     });
     if (copyBtn) {
       copyBtn.addEventListener('click', function () {
         var text = buildText();
-        if (preview) { preview.textContent = text; preview.classList.add('show'); }
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(text).then(function () {
-            copyBtn.textContent = 'コピーしました';
-            setTimeout(function () { copyBtn.textContent = '予約内容をコピー'; }, 1800);
-          });
-        }
+        showPreview(text);
+        var done = function () { copyBtn.textContent = 'コピーしました'; setTimeout(function () { copyBtn.textContent = '予約内容をコピー'; }, 1800); };
+        var fail = function () {
+          copyBtn.textContent = '長押しでコピーしてください';
+          if (preview && window.getSelection) { var r = document.createRange(); r.selectNodeContents(preview); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+          setTimeout(function () { copyBtn.textContent = '予約内容をコピー'; }, 2500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, fail); } else { fail(); }
       });
     }
   }

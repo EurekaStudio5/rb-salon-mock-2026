@@ -5,7 +5,8 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "4"
+VER = "6"
+BASE_URL = "https://eurekastudio5.github.io/rb-salon-mock-2026/"  # 本番公開時は本番ドメインに変更
 
 SHOP = dict(
     name="RE・BORN hair & relax",
@@ -82,19 +83,19 @@ RECOMMEND = [
          desc="柔らかストレートエステで髪質改善した後、毛先にふんわりカールをデザインします。顔まわりに動きが出ることで、女性らしいとても優しい印象になります。雑誌で人気のモテ髪度NO1メニューです。",
          inc="ストレート＆カール／カット／シャンプー／ブロー／スタイリング"),
     dict(tag="髪質改善", name="柔らかストレートエステ", img="img/menu-straight.jpg", normal=22999, first=21000, time="2.5〜3時間",
-         desc="日本人のなんと約7割がくせ毛と言われているのをご存知ですか？艶がなく広がり易いといった方にオススメです。今注目の髪質改善ストレートで、自然な艶と柔らかい髪へ導きます。",
+         desc="日本人のなんと約7割がくせ毛と言われているのをご存知ですか？そんな日本人特有のお悩みである、艶がなく広がり易いといった方にオススメです。今注目の髪質改善ストレートで、自然な艶と柔らかい髪へ導きます。永遠の憧れヘアをお手伝いいたします。",
          inc="ストレート／カット／シャンプー／ブロー／スタイリング"),
     dict(tag="髪修復", name="ふんわり小顔パーマ＆カラーエステ", img="img/menu-perm.jpg", normal=22000, first=19999, time="2〜2.5時間",
-         desc="トップにボリュームが欲しい方にオススメです。修復ハリコシカラーと同時に、根元から自然なボリュームを叶えます。トップが3cm高くなると小顔効果もバッチリ。",
+         desc="トップにボリュームが欲しい方にオススメです。修復ハリコシカラーと同時に、根元から自然なボリュームを叶えます。トップが3cm高くなると小顔効果もバッチリ。カラーとパーマを短時間で同時に行う当店オススメのメニューです。",
          inc="髪修復カラー／ふんわりパーマ／カット／シャンプー／ブロー／スタイリング"),
     dict(tag="髪質改善", name="艶髪カラーエステ", img="img/menu-color.jpg", normal=18000, first=16000, time="2時間",
-         desc="透明感のあるカラーで色を楽しみながら、同時に髪質改善する当店の看板メニューです。学生さん、OLさん、ママさんなど幅広い方に人気の髪質改善カラーメニューです。",
+         desc="透明感のあるカラーで色を楽しみながら、同時に髪質改善する当店の看板メニューです。ハリコシ・質感・艶などお客様のお悩みに合わせ施術致します。学生さん、OLさん、ママさんなど幅広い方に人気の髪質改善カラーメニューです。",
          inc="髪質改善カラー／艶髪トリートメント／カット／シャンプー／ブロー／スタイリング"),
     dict(tag="髪修復", name="ハリコシカラーエステ", img="img/menu-harikoshi.jpg", normal=15000, first=14000, time="2時間",
          desc="ただ白髪を染めるのはもう古い！年齢を重ねると細くなってしまう髪を太らせながらカラーリングする業界でも珍しい修復メニューです。ハリ・コシ・艶で若返りを目指します。",
          inc="髪修復カラー／ハリコシトリートメント／カット／シャンプー／ブロー／スタイリング"),
     dict(tag="頭皮整体スパ", name="頭皮整体スパ 癒しコース", img="img/menu-spa.jpg", normal=11000, first=10000, time="1〜1.5時間",
-         desc="群馬県初！全国300カ所の整体師さんとコラボした人気の整体スパとカットがセットになったコースです。副交感神経と交感神経を交互にマッサージし、自律神経を整えます。",
+         desc="群馬県初！全国300カ所の整体師さんとコラボした人気の整体スパとカットがセットになったコースです。副交感神経と交感神経を交互にマッサージし、自律神経を整えます。お仕事や家事からくる日々の疲れを癒し、毛髪はもちろん、頭皮・身体・心まで美しく整えていきます。",
          inc="頭皮整体スパ／カット／シャンプー／スタイリング"),
 ]
 
@@ -225,7 +226,7 @@ def ctaband():
   </div>
 </section>'''
 
-def footer():
+def footer(fname=""):
     links = "".join('<li><a href="%s">%s</a></li>' % (h, esc(ja)) for h, ja, en in NAV)
     return f'''
 <footer class="footer">
@@ -262,8 +263,8 @@ def footer():
 </footer>
 <nav class="stickybar" aria-label="予約・お問い合わせ">
   <a href="{SHOP['tel_href']}">{ICON['tel']}<b>電話する</b></a>
-  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINE予約</b></a>
-  <a class="web" href="reserve.html">{ICON['cal']}<b>WEB予約フォーム</b></a>
+  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINEで相談</b></a>
+  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"入力欄へ戻る" if fname == "reserve.html" else "予約フォーム"}</b></a>
 </nav>'''
 
 def jsonld():
@@ -272,9 +273,9 @@ def jsonld():
         "@type": ["HairSalon", "BeautySalon"],
         "name": SHOP["name"],
         "alternateName": SHOP["name_ja"],
-        "url": SHOP["site_url"],
+        "url": BASE_URL,
         "telephone": "+81-800-800-8835",
-        "image": SHOP["site_url"] + "img/exterior.jpg",
+        "image": BASE_URL + "img/exterior.jpg",
         "address": {"@type": "PostalAddress", "postalCode": SHOP["zip"], "addressRegion": "群馬県", "addressLocality": "高崎市", "streetAddress": "聖石町13-1", "addressCountry": "JP"},
         "geo": {"@type": "GeoCoordinates", "latitude": 36.3158, "longitude": 138.9900},
         "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "09:00", "closes": "18:30"}],
@@ -288,7 +289,7 @@ def jsonld():
 def page(fname, title, desc, body, active=None, og_title=None):
     full_title = title + "｜RE・BORN hair & relax（高崎市聖石町）" if fname != "index.html" else title
     return f'''<!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -300,7 +301,8 @@ def page(fname, title, desc, body, active=None, og_title=None):
 <meta property="og:site_name" content="RE・BORN hair &amp; relax">
 <meta property="og:title" content="{esc(og_title or full_title)}">
 <meta property="og:description" content="{esc(desc)}">
-<meta property="og:image" content="img/og-image.jpg">
+<meta property="og:url" content="{BASE_URL}{fname}">
+<meta property="og:image" content="{BASE_URL}img/og-image.jpg">
 <meta property="og:locale" content="ja_JP">
 <link rel="icon" href="img/logo-s.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -314,7 +316,7 @@ def page(fname, title, desc, body, active=None, og_title=None):
 <main>
 {body}
 </main>
-{footer()}
+{footer(fname)}
 <script src="assets/main.js?v={VER}" defer></script>
 </body>
 </html>'''
@@ -330,6 +332,8 @@ def sec_head(en, h2, p="", center=False):
     return f'<div class="sec-head{" center" if center else ""} rv"><span class="en">{en}</span><h2>{esc(h2)}</h2>{("<p>"+p+"</p>") if p else ""}</div>'
 
 def menu_card(m):
+    from urllib.parse import quote
+    q = quote("初回限定：" + m["name"])
     return f'''
 <article class="card rv">
   <figure><img src="{m['img']}" alt="{esc(m['name'])}" loading="lazy" width="300" height="450"><span class="tag">{esc(m['tag'])}</span></figure>
@@ -338,10 +342,11 @@ def menu_card(m):
     <div class="price"><s>通常 {yen(m['normal'])}円</s><b>¥{yen(m['first'])}</b><em>初回限定</em></div>
     <p>{esc(m['desc'])}</p>
     <div class="meta"><span>⏱ {esc(m['time'])}</span><span>含：{esc(m['inc'])}</span></div>
+    <a class="go" href="reserve.html?menu={q}">このメニューで予約する →</a>
   </div>
 </article>'''
 
-def voice_card(v, full=False):
+def voice_card(v, full=False, h="h3"):
     body = f'''<dl>
       <dt>ご来店のキッカケ</dt><dd>{esc(v['q1'])}</dd>
       <dt>長く通ってくださる理由</dt><dd>{esc(v['q2'])}</dd>
@@ -350,7 +355,7 @@ def voice_card(v, full=False):
     return f'''
 <article class="voice rv">
   <figure><img src="{v['img']}" alt="{esc(v['who'])}" loading="lazy"></figure>
-  <div class="body"><h3>{esc(v['title'])}</h3><div class="who">{esc(v['who'])}</div>{body}</div>
+  <div class="body"><{h}>{esc(v['title'])}</{h}><div class="who">{esc(v['who'])}</div>{body}</div>
 </article>'''
 
 def staff_card(s):
@@ -445,7 +450,7 @@ def build_index():
       <figure class="rv"><img src="img/owner-work.jpg" alt="オーナー 廣上 猶造" loading="lazy"></figure>
       <div class="rv">
         <span class="sec-head"><span class="en">Greeting</span></span>
-        <p class="lead">高崎に4代続く、<br>創業90年の理美容室です。</p>
+        <h2 class="lead">高崎に4代続く、<br>創業90年の理美容室です。</h2>
         <div class="msg">
           <p>当店のホームページをご覧いただきありがとうございます。リボーン・オーナーの廣上です。当店は、高崎に4代続く創業90年の理美容室です。地域の皆様には長年支えて頂き、心から感謝申し上げます。</p>
           <p>現在は娘二人も加わり、年代・性別を問わず、幅広い年代層のご要望に対応できるスタッフで営業しております。常により良いものを提供する姿勢を忘れずに、技術や接客についても、常に成長志向でチャレンジし続けております。</p>
@@ -521,10 +526,12 @@ def build_menu():
     cards = "".join(menu_card(m) for m in RECOMMEND)
     groups = ""
     for ja, en, items, note in PRICES:
+        gid = "g-" + en.lower().replace(" ", "-").replace("'", "").replace("/", "")
         lis = "".join(f'<li><span>{esc(n)}{("<small>"+esc(s)+"</small>") if s else ""}</span><b>¥{yen(p)}</b></li>' for n, s, p in items)
-        groups += f'<div class="pricegroup rv"><h3>{esc(ja)}<small>{en}</small></h3><ul>{lis}</ul>{("<p class=note>※"+esc(note)+"</p>") if note else ""}</div>'
-    body = pagehead("Menu &amp; Price", "メニュー・料金", "すべて税込価格です。初めての方は「おすすめメニュー」の初回限定価格をご利用ください。", "img/products.jpg") + f'''
-<section class="sec">
+        groups += f'<div class="pricegroup rv" id="{gid}"><h3>{esc(ja)}<small>{en}</small></h3><ul>{lis}</ul>{("<p class=note>※"+esc(note)+"</p>") if note else ""}</div>'
+    jump = '<div class="jump">' + "".join(f'<a href="#{ "g-" + en.lower().replace(" ", "-").replace(chr(39), "").replace("/", "") }">{esc(ja)}</a>' for ja, en, items, note in PRICES) + '<a href="#recommend">初回限定</a></div>'
+    body = pagehead("Menu &amp; Price", "メニュー・料金", "初めての方は「おすすめメニュー」の初回限定価格をご利用ください（表示価格は税込）。" + jump, "img/products.jpg") + f'''
+<section class="sec" id="recommend">
   <div class="wrap">
     {sec_head("Recommended", "おすすめメニュー（初回限定価格あり）", "カット・シャンプー・ブロー・スタイリング込み。施術時間の目安も記載しています。")}
     <div class="cards">{cards}</div>
@@ -536,7 +543,7 @@ def build_menu():
     {sec_head("Price List", "通常メニュー")}
     <div class="pricegrid">{groups}</div>
     <div class="notice rv">指名料はいただいておりません。早朝のご予約は別途料金にて承ります（前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください）。</div>
-    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}このメニューで予約する</a></div>
+    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}予約フォームへ</a></div>
   </div>
 </section>
 {ctaband()}'''
@@ -551,7 +558,7 @@ def build_staff():
   <figure><img src="{s['img']}" alt="{esc(s['name'])}" loading="lazy"></figure>
   <div>
     <div class="role">{esc(s['role'])}</div>
-    <h3>{esc(s['name'])}<small>{esc(s['en'])}</small></h3>
+    <h2>{esc(s['name'])}<small>{esc(s['en'])}</small></h2>
     <p class="msg">{esc(s['msg'])}</p>
     <table>
       <tr><th>誕生日</th><td>{esc(s['birth'])}</td></tr>
@@ -573,7 +580,7 @@ def build_staff():
     return page("staff.html", "スタッフ紹介", "RE・BORN hair & relax のスタッフ紹介。オーナー廣上猶造ほか、三世代で通えるスタッフをご紹介。指名料無料。", body)
 
 def build_voice():
-    cards = "".join(voice_card(v, full=True) for v in VOICES)
+    cards = "".join(voice_card(v, full=True, h="h2") for v in VOICES)
     body = pagehead("Voice", "お客様の声", "ご家族の紹介、近所に引っ越してきて、お孫さんの紹介で。長く通ってくださる理由をお聞きしました。", "img/voice-3.jpg") + f'''
 <section class="sec"><div class="wrap"><div class="voices">{cards}</div></div></section>
 {ctaband()}'''
@@ -605,46 +612,49 @@ def build_kitsuke():
     <div class="notice rv">成人式・卒業式は毎年ご予約が集中します。お日にちが決まりましたら、お早めにLINEまたはお電話でご相談ください。</div>
   </div>
 </section>
-<div class="lightbox" role="dialog" aria-label="画像の拡大表示"><button class="close" aria-label="閉じる">×</button><button class="prev" aria-label="前へ">‹</button><img src="" alt=""><button class="next" aria-label="次へ">›</button></div>
+<dialog class="lightbox" aria-label="画像の拡大表示"><button class="close" aria-label="閉じる">×</button><button class="prev" aria-label="前へ">‹</button><img alt=""><button class="next" aria-label="次へ">›</button></dialog>
 {ctaband()}'''
     return page("kitsuke.html", "着付け（成人式・卒業式）", "RE・BORN hair & relax の着付け・ヘアセット事例ギャラリー。成人式・卒業式の着付けは個室で。着付け技能免許保有スタイリストが担当。", body)
 
 def build_reserve():
     menu_opts = ["初回限定：ふんわり柔らかストカールエステ", "初回限定：柔らかストレートエステ", "初回限定：ふんわり小顔パーマ＆カラーエステ", "初回限定：艶髪カラーエステ",
                  "初回限定：ハリコシカラーエステ", "初回限定：頭皮整体スパ 癒しコース", "カット", "カット＋カラー", "カット＋パーマ", "ストレートパーマ", "ヘッドスパ",
-                 "メンズカット＋シェービング", "メンズパーマ（ツイスト・スパイラル等）", "レディースシェービング", "着付け・ヘアセット", "その他（ご要望欄に記入）"]
+                 "メンズカット＋シェービング", "メンズパーマ（ツイスト・スパイラル等）", "レディースシェービング", "着付け・ヘアセット", "相談して決めたい", "その他（ご要望欄に記入）"]
     opts = "".join(f'<option value="{esc(o)}">{esc(o)}</option>' for o in menu_opts)
-    times = "".join(f'<option value="{h}:{m:02d}">{h}:{m:02d}</option>' for h in range(9, 18) for m in (0, 30)) + '<option value="18:00">18:00</option>'
+    times = "".join(f'<option value="{h}:{m:02d}">{h}:{m:02d}</option>' for h in range(9, 18) for m in (0, 30)) + '<option value="18:00">18:00</option><option value="18:30">18:30（カットのみ）</option>'
     stylists = "".join(f'<option value="{esc(s["name"])}">{esc(s["name"])}（{esc(s["role"])}）</option>' for s in STAFF if s["role"] not in ("カインズパースン", "アシスタント"))
     body = pagehead("Reservation", "ご予約・お問い合わせ", "WEB予約フォーム・LINE・お電話からご予約いただけます。当日のご予約はお電話が確実です。", "img/private-room.jpg") + f'''
 <section class="sec">
   <div class="wrap">
     <div class="resv">
-      <form class="form rv" id="resv-form" data-line-id="{SHOP['line_id']}" novalidate>
-        <h3>WEB予約フォーム</h3>
-        <p class="sub">入力内容がLINEのメッセージとして自動で作成されます。「LINEで送信」を押すと、公式LINEのトーク画面が開き、内容が入った状態になりますので、そのまま送信してください。</p>
-        <div class="field"><label>ご利用<i>必須</i></label>
-          <div class="radios"><label><input type="radio" name="visit" value="初めて" checked>初めて</label><label><input type="radio" name="visit" value="2回目以降">2回目以降</label></div></div>
+      <form class="form rv" id="resv-form" data-line-id="{SHOP['line_id']}" data-line-add="{SHOP['line_add']}" novalidate>
+        <h2>WEB予約フォーム</h2>
+        <p class="sub">入力内容が公式LINEへのメッセージとして自動で作成されます。送信はLINEアプリ内で行います。</p>
+        <ol class="steps"><li><b>入力</b>希望日時とメニューを選ぶ</li><li><b>LINEで送信</b>トーク画面が開くので送信</li><li><b>返信で確定</b>3営業日以内にお返事（当日・お急ぎは<a href="{SHOP['tel_href']}" style="text-decoration:underline">お電話</a>）</li></ol>
+        <div class="errbox" id="resv-error" hidden></div>
+        <fieldset><legend>ご利用<i>必須</i></legend>
+          <div class="radios"><label><input type="radio" name="visit" value="初めて" checked>初めて</label><label><input type="radio" name="visit" value="2回目以降">2回目以降</label></div></fieldset>
         <div class="field"><label for="f-menu">ご希望メニュー<i>必須</i></label><select id="f-menu" name="menu" required><option value="">選択してください</option>{opts}</select></div>
         <div class="field"><label>第1希望日時<i>必須</i></label><div class="row2"><input type="date" name="date1" required aria-label="第1希望日"><select name="time1" required aria-label="第1希望時間"><option value="">時間</option>{times}</select></div></div>
         <div class="field"><label>第2希望日時</label><div class="row2"><input type="date" name="date2" aria-label="第2希望日"><select name="time2" aria-label="第2希望時間"><option value="">時間</option>{times}</select></div></div>
         <div class="field"><label for="f-stylist">ご指名（指名料無料）</label><select id="f-stylist" name="stylist"><option value="">指名なし</option>{stylists}</select></div>
         <div class="row2">
-          <div class="field"><label for="f-name">お名前<i>必須</i></label><input id="f-name" type="text" name="name" required autocomplete="name" placeholder="例）高崎 花子"></div>
-          <div class="field"><label for="f-tel">電話番号</label><input id="f-tel" type="tel" name="tel" autocomplete="tel" inputmode="tel" placeholder="例）090-1234-5678"></div>
+          <div class="field"><label for="f-name">お名前<i>必須</i></label><input id="f-name" type="text" name="name" required autocomplete="name" maxlength="40" placeholder="例）高崎 花子"></div>
+          <div class="field"><label for="f-tel">電話番号</label><input id="f-tel" type="tel" name="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="例）090-1234-5678"></div>
         </div>
-        <div class="field"><label for="f-note">ご要望・ご相談</label><textarea id="f-note" name="note" placeholder="髪のお悩み、お子様連れ、車椅子でのご来店、早朝希望など何でもどうぞ"></textarea></div>
+        <div class="field"><label for="f-note">ご要望・ご相談</label><textarea id="f-note" name="note" maxlength="400" placeholder="髪のお悩み、お子様連れ、車椅子でのご来店、早朝希望など何でもどうぞ（400文字まで）"></textarea></div>
         <div class="actions">
-          <button type="submit" class="btn btn-line">{ICON['line']}LINEで送信して予約する</button>
+          <button type="submit" class="btn btn-line">{ICON['line']}LINEを開いて予約内容を送る</button>
           <button type="button" class="btn btn-outline" id="resv-copy">予約内容をコピー</button>
         </div>
         <div class="preview" id="resv-preview" aria-live="polite"></div>
-        <p class="hint">※メッセージ送信だけではご予約は完了しません。当店からの折り返しをもってご予約完了となります（返信は3営業日以内）。当日のご予約や、お急ぎの場合は営業時間内にお電話ください。<br>※初めてLINEをご利用の方は、先に <a href="{SHOP['line_add']}" target="_blank" rel="noopener" style="text-decoration:underline">友だち追加</a> をお願いします（ID検索：{SHOP['line_id']}）。</p>
+        <p class="fallback" id="resv-fallback" hidden></p>
+        <p class="hint">※LINEでのメッセージ送信だけではご予約は完了しません。当店からの折り返しをもってご予約完了となります（返信は3営業日以内）。当日のご予約や、お急ぎの場合は営業時間内にお電話ください。<br>※初めてLINEをご利用の方は、先に <a href="{SHOP['line_add']}" target="_blank" rel="noopener" style="text-decoration:underline">友だち追加</a> をお願いします（ID検索：{SHOP['line_id']}）。</p>
       </form>
       <aside class="side">
-        <div class="box rv"><h3>お電話でのご予約</h3><a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a><p>受付 {SHOP['hours']}／定休日 {SHOP['closed']}<br>当日のご予約・お急ぎの方はお電話が確実です。</p><a class="btn btn-tel" href="{SHOP['tel_href']}" style="width:100%">{ICON['tel']}電話をかける</a></div>
-        <div class="box rv"><h3>LINEで直接メッセージ</h3><p>フォームを使わず、LINEで直接ご連絡いただいても大丈夫です。①お名前 ②ご希望日時 ③ご希望メニュー の3点をお知らせください。</p><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%">{ICON['line']}友だち追加してトークする</a><p class="hp" style="margin-top:8px">ID検索：{SHOP['line_id']}（@を忘れずにご入力ください）</p></div>
-        <div class="box rv"><h3>ご予約に関するお願い</h3><ol><li>ご連絡無しで予約時間から大幅に遅刻された場合、施術内容によりお断りすることがあります。</li><li>無断キャンセルの場合、次回からのご予約を制限させていただくことがあります。</li><li>早朝のご予約は別途料金にて承ります。前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください。</li></ol></div>
+        <div class="box rv"><h2>お電話でのご予約</h2><a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a><p>受付 {SHOP['hours']}／定休日 {SHOP['closed']}<br>当日のご予約・お急ぎの方はお電話が確実です。</p><a class="btn btn-tel" href="{SHOP['tel_href']}" style="width:100%">{ICON['tel']}電話をかける</a></div>
+        <div class="box rv"><h2>LINEで直接メッセージ</h2><p>フォームを使わず、LINEで直接ご連絡いただいても大丈夫です。①お名前 ②ご希望日・時間 ③ご希望のメニュー（クーポンメニュー利用有り・無し）の3点をお知らせください。</p><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%">{ICON['line']}友だち追加してトークする</a><p class="hp" style="margin-top:8px">ID検索：{SHOP['line_id']}（@を忘れずにご入力ください）</p></div>
+        <div class="box rv"><h2>ご予約に関するお願い</h2><ol><li>ご連絡無しで予約時間から大幅に遅刻された場合、施術内容によりお断りすることがあります。</li><li>無断キャンセルの場合、次回からのご予約を制限させていただくことがあります。</li><li>早朝のご予約は別途料金にて承ります。前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください。</li></ol></div>
         <p class="hp rv">ホットペッパービューティーからのネット予約は<a href="{SHOP['hpb']}" target="_blank" rel="noopener" style="text-decoration:underline">こちら</a>。</p>
       </aside>
     </div>
