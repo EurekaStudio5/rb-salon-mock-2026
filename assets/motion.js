@@ -19,9 +19,9 @@
       setTimeout(function () {
         intro.classList.add('out');
         document.body.classList.remove('intro-lock');
-        setTimeout(goLive, 250);
-        setTimeout(function () { if (intro.parentNode) intro.parentNode.removeChild(intro); }, 1200);
-      }, 1700);
+        setTimeout(goLive, 150);
+        setTimeout(function () { if (intro.parentNode) intro.parentNode.removeChild(intro); }, 900);
+      }, 1150);
     }
   } else {
     requestAnimationFrame(goLive);
@@ -32,9 +32,9 @@
   if ('IntersectionObserver' in window && !reduce) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+    }, { rootMargin: '0px 0px 12% 0px', threshold: 0 });
     targets.forEach(function (el) { io.observe(el); });
-    setTimeout(function () { targets.forEach(function (el) { el.classList.add('in'); }); }, 3500);
+    setTimeout(function () { targets.forEach(function (el) { el.classList.add('in'); }); }, 1200);
   } else {
     targets.forEach(function (el) { el.classList.add('in'); });
   }

@@ -5,7 +5,7 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "15"
+VER = "16"
 GATE_PASS = "7575"  # 仮公開のパスワード（Shingo指示 2026-09-15）
 
 def gate_hash(pw):

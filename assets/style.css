@@ -114,7 +114,7 @@ ul{margin:0;padding:0;list-style:none}
 @media (max-width:640px){.sec{padding:64px 0}.sec-head{margin-bottom:30px}.sec-head h2{font-size:23px;letter-spacing:.04em}.reason h3{font-size:20px}}
 
 /* reveal */
-.js .rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.js .rv{opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
 .js .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}}
 
