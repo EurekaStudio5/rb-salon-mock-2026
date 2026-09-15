@@ -5,7 +5,7 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "8"
+VER = "9"
 BASE_URL = "https://eurekastudio5.github.io/rb-salon-mock-2026/"  # 本番公開時は本番ドメインに変更
 
 SHOP = dict(
@@ -196,7 +196,7 @@ def header(active):
 <header class="header">
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="RE・BORN hair & relax ホーム"><img src="img/logo.png" alt="RE・BORN hair &amp; relax" width="320" height="72"><small>Takasaki</small></a>
-    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}WEB予約</a></nav>
+    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}予約フォーム</a></nav>
     <button class="burger" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -204,8 +204,8 @@ def header(active):
   {drawer}
   <a href="reserve.html">ご予約・お問い合わせ<small>Reservation</small></a>
   <div class="cta">
-    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}WEB予約フォーム</a>
-    <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで予約・相談</a>
+    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a>
+    <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     <a class="btn btn-tel" href="{SHOP['tel_href']}">{ICON['tel']}{SHOP['tel']}</a>
   </div>
 </div>'''
@@ -216,9 +216,9 @@ def ctaband():
   <img src="img/interior-1.jpg" alt="" loading="lazy">
   <div class="wrap">
     <h2>ご予約・ご相談はお気軽に</h2>
-    <p>WEB予約フォーム・LINE・お電話からご予約いただけます。<br>初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
+    <p>予約フォーム（入力内容をLINEで送信）・LINE・お電話からご予約いただけます。<br>初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
     <div class="cta">
-      <a class="btn btn-white" href="reserve.html">{ICON['cal']}WEB予約フォーム</a>
+      <a class="btn btn-white" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a>
       <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     </div>
     <a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a>
@@ -623,7 +623,7 @@ def build_reserve():
     opts = "".join(f'<option value="{esc(o)}">{esc(o)}</option>' for o in menu_opts)
     times = "".join(f'<option value="{h:02d}:{m:02d}">{h}:{m:02d}</option>' for h in range(9, 18) for m in (0, 30)) + '<option value="18:00">18:00</option><option value="18:30">18:30（カットのみ）</option>'
     stylists = "".join(f'<option value="{esc(s["name"])}">{esc(s["name"])}（{esc(s["role"])}）</option>' for s in STAFF if s["role"] not in ("カインズパースン", "アシスタント"))
-    body = pagehead("Reservation", "ご予約・お問い合わせ", "WEB予約フォーム・LINE・お電話からご予約いただけます。当日のご予約はお電話が確実です。", "img/private-room.jpg") + f'''
+    body = pagehead("Reservation", "ご予約・お問い合わせ", "予約フォーム（入力内容をLINEで送信）・LINE・お電話からご予約いただけます。当日のご予約はお電話が確実です。", "img/private-room.jpg") + f'''
 <section class="sec">
   <div class="wrap">
     <div class="resv">

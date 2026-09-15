@@ -7,13 +7,16 @@
   /* mobile nav */
   var burger = document.querySelector('.burger');
   var drawer = document.querySelector('.drawer');
+  var behind = Array.prototype.slice.call(document.querySelectorAll('main, footer, .stickybar'));
   function setNav(open) {
     drawer.classList.toggle('open', open);
     document.body.classList.toggle('nav-open', open);
     burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     burger.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+    // while the drawer is open, everything behind it leaves the tab order; on close, focus returns to the button
+    behind.forEach(function (el) { if (open) el.setAttribute('inert', ''); else el.removeAttribute('inert'); });
     if (open) { drawer.removeAttribute('inert'); drawer.querySelector('a').focus(); }
-    else { drawer.setAttribute('inert', ''); }
+    else { drawer.setAttribute('inert', ''); burger.focus(); }
   }
   if (burger && drawer) {
     drawer.setAttribute('inert', '');
@@ -174,6 +177,9 @@
         // focus the first invalid field in DOM order
         var first = form.querySelector('[aria-invalid="true"]');
         if (first) { first.focus(); first.scrollIntoView({ block: 'center' }); }
+        // any previously generated link/preview is no longer valid
+        if (fallback) { fallback.hidden = true; fallback.innerHTML = ''; }
+        if (preview && preview.classList.contains('show')) { preview.textContent = buildText() + '\n（上の項目を修正して、もう一度ボタンを押してください）'; }
         return false;
       }
       if (errBox) errBox.hidden = true;
@@ -183,8 +189,16 @@
     function showPreview(text) {
       if (preview) { preview.textContent = text; preview.classList.add('show'); }
       if (fallback) {
-        fallback.innerHTML = 'LINEが開かない場合は、<a href="' + lineUrl(text) + '" target="_blank" rel="noopener">こちらをタップ</a>するか、上の内容をコピーして公式LINE（<a href="' + LINE_ADD + '" target="_blank" rel="noopener">友だち追加</a>）のトークに貼り付けて送信してください。';
+        fallback.innerHTML = 'LINEが開かない場合は、<a href="' + lineUrl(text) + '" class="retry" target="_blank" rel="noopener">こちらをタップ</a>するか、上の内容をコピーして公式LINE（<a href="' + LINE_ADD + '" target="_blank" rel="noopener">友だち追加</a>）のトークに貼り付けて送信してください。';
         fallback.hidden = false;
+        // the retry link re-validates at click time (the slot may have expired meanwhile)
+        var retry = fallback.querySelector('a.retry');
+        if (retry) {
+          retry.addEventListener('click', function (ev) {
+            if (!validate()) { ev.preventDefault(); return; }
+            retry.setAttribute('href', lineUrl(buildText()));
+          });
+        }
       }
     }
     function invalidateOutputs() {
