@@ -168,6 +168,7 @@
     root.innerHTML = (state.step <= 5 ? stepsBar() : '') + '<div class="bk-body">' + v + '</div>' + (state.step <= 5 ? '<div class="bk-foot">' + backBtn() + '</div>' : '');
     var hd = root.querySelector('.bk-h'); if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus({ preventScroll: true }); }
     if (state.step > 1) root.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    if (window.fixOrphans) setTimeout(window.fixOrphans, 30);
   }
 
   root.addEventListener('click', function (ev) {

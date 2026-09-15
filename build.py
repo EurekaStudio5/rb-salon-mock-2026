@@ -5,7 +5,7 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "16"
+VER = "22"
 GATE_PASS = "7575"  # 仮公開のパスワード（Shingo指示 2026-09-15）
 
 def gate_hash(pw):
@@ -143,7 +143,7 @@ STAFF = [
          birth="10/13", from_="高崎市", sign="てんびん座", hobby="ドライブ（助手席）笑", lic="美容師免許", good="ショートスタイル。自分自身の長年のショート経験を生かして、どこにバランスをもっていくとキレイなのか、どうやったら首がキレイにみえるか考えながらカットさせていただいております。"),
     dict(role="スタイリスト・着付け師", name="林 まり子", en="Hayashi Mariko", img="img/staff-mariko.jpg",
          msg="私が美容師になったきっかけは父の言葉でした。将来何をしたいかあまり考えていなかった私に、これからは女性も手に職を持った方が良いのではないかと、そして女性が女性を美しくする事が良いのではと美容師になりました。私もそうですが、誰にでもコンプレックスがあり、その悩みを少しでも解決でき、髪のことだけでなく何でも相談できる美容師でありたいと思っています。",
-         birth="5/7", from_="渋川市", sign="おうし座", hobby="孫と遊ぶ事・色々な料理を作ってみる事", lic="美容師免許・着付け技能免許", good="骨格を生かしたショートスタイル・着付け"),
+         birth="5/7", from_="渋川市", sign="おうし座", hobby="孫と遊ぶこと、いろいろな料理を作ってみること", lic="美容師免許・着付け技能免許", good="骨格を生かしたショートスタイル・着付け"),
     dict(role="スタイリスト", name="狩野 沙也加", en="Kano Sayaka", img="img/staff-sayaka.jpg",
          msg="美容師になりたいと思ったのは、おばあちゃんがきっかけです。小さい頃は髪の毛がすごく長かったので、おばあちゃんが毎日髪の毛を結んだり編んだりしてくれました。それを見よう見まねでお人形で遊んだり、母が知り合いからマネキンを貰ってきてハサミで切ってみたり、美容師という職業を知ってからはずっとなりたい夢でした。お客様のなりたいスタイルを作るだけでなく、頭皮や髪の毛のお悩みを解決できるような美容師になりたいです。",
          birth="3/30", from_="前橋市", sign="おひつじ座", hobby="美味しいもの巡りです。とにかく食べることが大好きです。", lic="美容師免許", good="お客様の雰囲気に合わせて可愛くアレンジをしたり、可愛い巻き方をレクチャーすることが得意です。"),
@@ -210,9 +210,9 @@ def header(active):
 </header>
 <div class="drawer" id="drawer" inert>
   {drawer}
-  <a href="reserve.html">WEB予約（空き状況カレンダー）<small>Reservation</small></a>
+  <a href="reserve.html">WEB予約<small>Reservation</small></a>
   <div class="cta">
-    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}WEB予約（空き状況カレンダー）</a>
+    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a>
     <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     <a class="btn btn-tel" href="{SHOP['tel_href']}">{ICON['tel']}{SHOP['tel']}</a>
   </div>
@@ -233,9 +233,9 @@ def ctaband():
   <img class="plx" src="img/interior-2.jpg" alt="" loading="lazy">
   <div class="wrap">
     <h2>ご予約・ご相談はお気軽に</h2>
-    <p>空き状況カレンダーからのWEB予約・LINE・お電話からご予約いただけます。<br>初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
+    <p>空き状況カレンダーからのWEB予約・LINE・お電話からご予約いただけます。初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
     <div class="cta">
-      <a class="btn btn-white" href="reserve.html">{ICON['cal']}WEB予約（空き状況カレンダー）</a>
+      <a class="btn btn-white" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a>
       <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     </div>
     <a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a>
@@ -602,7 +602,7 @@ def build_index():
   <div class="wrap">
     {sec_head("Style & Instagram", "スタイル・最新情報はInstagramで", "髪質改善のビフォーアフター、メンズパーマ、着付けなど最新のスタイルを日々更新しています。")}
     <div class="igrid stagger">{styles}</div>
-    <div class="more"><a class="btn btn-primary" href="{SHOP['ig']}" target="_blank" rel="noopener">{ICON['ig']}Instagram {SHOP['ig_id']} をフォロー</a></div>
+    <div class="more"><a class="btn btn-primary" href="{SHOP['ig']}" target="_blank" rel="noopener">{ICON['ig']}Instagramをフォロー</a></div>
   </div>
 </section>
 
@@ -670,7 +670,7 @@ def build_staff():
     body = pagehead("Staff", "スタッフ紹介", "世代を超えた女性スタッフと理容師免許を持つオーナー。カウンセリングから仕上げまで、最後まで同じスタイリストが担当します。", "img/staff-group.jpg") + f'''
 <section class="sec">
   <div class="wrap">{profs}
-    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}スタイリストを指名して予約する（指名料無料）</a></div>
+    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}指名して予約する</a></div>
   </div>
 </section>
 {ctaband()}'''
@@ -739,8 +739,8 @@ def build_reserve():
       <div class="bk rv" id="booking" data-line-id="{SHOP['line_id']}" aria-live="polite"></div>
       <script type="application/json" id="booking-data">{data}</script>
       <aside class="side">
-        <div class="box rv"><h2>お電話でのご予約</h2><a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a><p>受付 {SHOP['hours']}／定休日 {SHOP['closed']}<br>当日のご予約・お急ぎの方はお電話が確実です。</p><a class="btn btn-tel" href="{SHOP['tel_href']}" style="width:100%">{ICON['tel']}電話をかける</a></div>
-        <div class="box rv"><h2>LINEでのご予約・ご相談</h2><p>個室をご希望の方、着付け・ブライダルシェービング、髪のお悩み相談は公式LINEからどうぞ。①お名前 ②ご希望日・時間 ③ご希望のメニュー（クーポンメニュー利用有り・無し）の3点をお知らせください。</p><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%">{ICON['line']}友だち追加してトークする</a><p class="hp" style="margin-top:8px">ID検索：{SHOP['line_id']}（@を忘れずにご入力ください）</p></div>
+        <div class="box rv"><h2>お電話でのご予約</h2><a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a><p>受付 {SHOP['hours']}／定休日 {SHOP['closed']}。当日のご予約・お急ぎの方はお電話が確実です。</p><a class="btn btn-tel" href="{SHOP['tel_href']}" style="width:100%">{ICON['tel']}電話をかける</a></div>
+        <div class="box rv"><h2>LINEでのご予約・ご相談</h2><p>個室をご希望の方、着付け・ブライダルシェービング、髪のお悩み相談は公式LINEからどうぞ。①お名前 ②ご希望日・時間 ③ご希望のメニュー（クーポンメニュー利用有り・無し）の3点をお知らせください。</p><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%">{ICON['line']}LINEで友だち追加</a><p class="hp" style="margin-top:8px">LINE ID検索：{SHOP['line_id']}（@を忘れずに）</p></div>
         <div class="box rv"><h2>ご予約に関するお願い</h2><ol><li>ご連絡無しで予約時間から大幅に遅刻された場合、施術内容によりお断りすることがあります。</li><li>無断キャンセルの場合、次回からのご予約を制限させていただくことがあります。</li><li>早朝のご予約は別途料金にて承ります。前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください。</li></ol></div>
         <p class="hp rv">ホットペッパービューティーからのネット予約は<a href="{SHOP['hpb']}" target="_blank" rel="noopener" style="text-decoration:underline">こちら</a>。</p>
       </aside>

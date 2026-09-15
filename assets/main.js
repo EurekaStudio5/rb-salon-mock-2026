@@ -43,7 +43,14 @@
   }
 
   /* scroll reveal (elements start visible when JS is off; see .js .rv in CSS) */
-  var rv = document.querySelectorAll('.rv');
+  var rv = Array.prototype.slice.call(document.querySelectorAll('.rv'));
+  function revealInView() {
+    var limit = window.innerHeight * 1.12;
+    rv = rv.filter(function (el) {
+      if (el.getBoundingClientRect().top < limit) { el.classList.add('in'); return false; }
+      return true;
+    });
+  }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
@@ -51,11 +58,58 @@
       });
     }, { rootMargin: '0px 0px 12% 0px', threshold: 0 });
     rv.forEach(function (el) { io.observe(el); });
-    /* safety: never leave content hidden (e.g. observer stalled in a background tab) */
-    setTimeout(function () { rv.forEach(function (el) { el.classList.add('in'); }); }, 1200);
+    /* safety for a stalled observer: reveal only what is on screen now (never everything at once) */
+    setTimeout(revealInView, 900);
+    window.addEventListener('scroll', function () { if (rv.length) revealInView(); }, { passive: true });
   } else {
-    rv.forEach(function (el) { el.classList.add('in'); });
+    revealInView();
+    window.addEventListener('scroll', revealInView, { passive: true });
   }
+
+  /* orphan killer: a paragraph whose last line holds only 1-3 characters gets a little right padding
+     so the text re-wraps with a fuller last line (runs after fonts load and on resize) */
+  function lineWidths(el) {
+    var rects = [];
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var n;
+    while ((n = walker.nextNode())) {
+      if (!n.textContent.trim()) continue;
+      var r = document.createRange(); r.selectNodeContents(n);
+      Array.prototype.push.apply(rects, r.getClientRects());
+    }
+    var lines = {};
+    rects.forEach(function (rc) {
+      if (rc.width < 1) return;
+      var k = Math.round(rc.top / 6);
+      if (!lines[k]) lines[k] = { l: rc.left, r: rc.right };
+      lines[k].l = Math.min(lines[k].l, rc.left); lines[k].r = Math.max(lines[k].r, rc.right);
+    });
+    return Object.keys(lines).sort(function (a, b) { return a - b; }).map(function (k) { return lines[k].r - lines[k].l; });
+  }
+  function fixOrphans() {
+    var els = document.querySelectorAll('p, li, dd, dt, td, summary, figcaption, h1, h2, h3, .lead, .sub, .hint, .meta span, .faq .a, .bk-menu .nm, .bk-stylist .rl, .bk-p, .bk-note, .bk-legend, .bk-summary dd, .bk-confirm td');
+    Array.prototype.forEach.call(els, function (el) {
+      if (el.closest('.btn, .marquee, .stickybar, .bk-steps, table, .nav, .drawer, .intro')) return;
+      if (el.getAttribute('data-orphan') === 'skip') return;
+      el.style.paddingRight = '';
+      if ((el.textContent || '').trim().length < 8) return;
+      var width = el.getBoundingClientRect().width;
+      if (width < 80) return;
+      for (var pad = 0; pad <= 24; pad += 2) {
+        if (pad) el.style.paddingRight = pad + '%';
+        var ws = lineWidths(el);
+        if (ws.length < 2) break;
+        if (ws[ws.length - 1] >= width * 0.2) break;
+        if (pad === 24) el.style.paddingRight = '';
+      }
+    });
+  }
+  var orphanTimer;
+  function scheduleOrphans() { clearTimeout(orphanTimer); orphanTimer = setTimeout(fixOrphans, 120); }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleOrphans); else scheduleOrphans();
+  window.addEventListener('load', scheduleOrphans);
+  window.addEventListener('resize', scheduleOrphans);
+  window.fixOrphans = fixOrphans;
 
   /* lightbox (gallery) — native <dialog> for focus trapping */
   var links = Array.prototype.slice.call(document.querySelectorAll('.gallery a'));

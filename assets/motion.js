@@ -28,15 +28,26 @@
   }
 
   /* reveal on scroll for wipe-in photos, staggered grids and section heads */
-  var targets = document.querySelectorAll('.rv-img, .stagger, .sec-head');
-  if ('IntersectionObserver' in window && !reduce) {
+  var targets = Array.prototype.slice.call(document.querySelectorAll('.rv-img, .stagger, .sec-head'));
+  // reveal only what is at/near the viewport now; elements further down wait for the scroll (never a blanket reveal)
+  function revealInView() {
+    var limit = window.innerHeight * 1.12;
+    targets = targets.filter(function (el) {
+      if (el.getBoundingClientRect().top < limit) { el.classList.add('in'); return false; }
+      return true;
+    });
+  }
+  if (reduce || !('IntersectionObserver' in window)) {
+    if (reduce) { targets.forEach(function (el) { el.classList.add('in'); }); targets = []; }
+    else { revealInView(); window.addEventListener('scroll', revealInView, { passive: true }); }
+  } else {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { rootMargin: '0px 0px 12% 0px', threshold: 0 });
     targets.forEach(function (el) { io.observe(el); });
-    setTimeout(function () { targets.forEach(function (el) { el.classList.add('in'); }); }, 1200);
-  } else {
-    targets.forEach(function (el) { el.classList.add('in'); });
+    // safety for a stalled observer: only elements already on screen, checked on a timer and on scroll
+    setTimeout(revealInView, 900);
+    window.addEventListener('scroll', function () { if (targets.length) revealInView(); }, { passive: true });
   }
 
   /* parallax (transform only, rAF-throttled) */
