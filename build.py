@@ -5,8 +5,8 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "12"
-GATE_PASS = "775775"  # 仮公開のパスワード（Shingo指示 2026-09-15）
+VER = "14"
+GATE_PASS = "7575"  # 仮公開のパスワード（Shingo指示 2026-09-15）
 
 def gate_hash(pw):
     # 軽量ハッシュ（gate.html の JS と同じ計算式）: 平文をHTMLに置かないためのもの。暗号強度は求めていない
@@ -75,14 +75,14 @@ CONCERNS = [
 REASONS = [
     ("01", "コンセプトは、もうひとつのリビング", "img/interior-1.jpg",
      "居心地の良い時間をお過ごしいただく為、空間作りにこだわりました。空に抜けるような高い天井、移動のないシャンプー台、大型空気清浄機完備、冬は足元から暖かい床暖房も完備しています。こだわりの極上空間であなたをお迎えいたします。"),
-    ("02", "バリアフリー＆個室完備", "img/private-room.jpg",
+    ("02", "バリアフリー＆個室完備", "img/room-new.jpg",
      "店内はバリアフリーで段差もなく、車椅子、ストレッチャーの方でもご利用いただけます。また、個室も2部屋完備していますので、小さなお子様連れのママさんも安心。自慢のヘッドスパ、着付け、ブライダルシェービングも個室でゆったりお過ごしいただけます。"),
     ("03", "優しさ溢れる女性スタッフ", "img/staff-group.jpg",
      "三世代で安心して通える所以は、世代を超えた女性スタッフ。まるで昔懐かしい大家族のような明るく楽しい私たちがお出迎えいたします。「スタイリストが最後まで担当してくれるのも嬉しい！」とご好評をいただいております。"),
     ("04", "最新の技術や薬剤をご提供します", "img/products.jpg",
      "最新のデザインや技術・薬剤を求め、毎月都内まで勉強しに行くほどのこだわり。群馬県初の整体スパや髪質改善メニューなど、高崎にいながら最新のクオリティーを提供することをお約束します。年代に合わせたお悩み解決メニューでいつまでも美しく！カッコ良く！をお手伝いします。"),
-    ("05", "メンズスタイルも得意です", "img/mens.jpg",
-     "リボーンは高崎でも珍しいユニセックスサロン。オーナー廣上は理容の免許も持っています。顔そりの気持ち良さは、男性の至福の時間。幼い頃連れて行ってもらった理容室の醍醐味を味わえるお店です。"),
+    ("05", "メンズスタイルも得意です", "img/mens-style.jpg",
+     "リボーンは高崎でも珍しいユニセックスサロン。オーナー廣上は理容師免許も持ち、ツイストパーマ・フェードカット・韓国風フェザーパーマなどトレンドのメンズスタイルから、ビジネスシーンの清潔感あるスタイルまで対応します。顔そり（シェービング）の気持ち良さは、男性の至福の時間。学生さんからシニアの方まで、幼い頃連れて行ってもらった理容室の醍醐味を味わえるお店です。"),
 ]
 
 # おすすめメニュー（初回限定価格つき）
@@ -90,7 +90,7 @@ RECOMMEND = [
     dict(tag="髪質改善", name="ふんわり柔らかストカールエステ", img="img/menu-stcurl.jpg", normal=25000, first=23000, time="3〜3.5時間",
          desc="柔らかストレートエステで髪質改善した後、毛先にふんわりカールをデザインします。顔まわりに動きが出ることで、女性らしいとても優しい印象になります。雑誌で人気のモテ髪度NO1メニューです。",
          inc="ストレート＆カール／カット／シャンプー／ブロー／スタイリング"),
-    dict(tag="髪質改善", name="柔らかストレートエステ", img="img/menu-straight.jpg", normal=22999, first=21000, time="2.5〜3時間",
+    dict(tag="髪質改善", name="柔らかストレートエステ", img="img/style-straight.jpg", normal=22999, first=21000, time="2.5〜3時間",
          desc="日本人のなんと約7割がくせ毛と言われているのをご存知ですか？そんな日本人特有のお悩みである、艶がなく広がり易いといった方にオススメです。今注目の髪質改善ストレートで、自然な艶と柔らかい髪へ導きます。永遠の憧れヘアをお手伝いいたします。",
          inc="ストレート／カット／シャンプー／ブロー／スタイリング"),
     dict(tag="髪修復", name="ふんわり小顔パーマ＆カラーエステ", img="img/menu-perm.jpg", normal=22000, first=19999, time="2〜2.5時間",
@@ -204,29 +204,38 @@ def header(active):
 <header class="header">
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="RE・BORN hair & relax ホーム"><img src="img/logo.png" alt="RE・BORN hair &amp; relax" width="320" height="72"><small>Takasaki</small></a>
-    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a></nav>
+    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}WEB予約</a></nav>
     <button class="burger" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
   </div>
 </header>
 <div class="drawer" id="drawer" inert>
   {drawer}
-  <a href="reserve.html">ご予約・お問い合わせ<small>Reservation</small></a>
+  <a href="reserve.html">WEB予約（空き状況カレンダー）<small>Reservation</small></a>
   <div class="cta">
-    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a>
+    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}WEB予約（空き状況カレンダー）</a>
     <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     <a class="btn btn-tel" href="{SHOP['tel_href']}">{ICON['tel']}{SHOP['tel']}</a>
   </div>
 </div>'''
 
+def marquee():
+    words = ["Hair Quality Improvement", "Head Spa", "Men's Barber", "Kimono Dressing", "Private Rooms", "Since 1935 in Takasaki"]
+    return "".join(f"<span>{w}</span>" for w in words * 2)
+
+def before_after():
+    items = [("img/ba-4.jpg", "髪質改善ストレート", "広がりとパサつきが、指どおりの良いまとまる髪に"), ("img/ba-3.jpg", "髪質改善カラートリートメント", "色を楽しみながら、艶とハリを同時に"),
+             ("img/ba-2.jpg", "髪質改善カラー（ボブ）", "ダメージ毛でも柔らかい質感に"), ("img/ba-1.jpg", "髪質改善カラートリートメント（ロング）", "根元から毛先までなめらかな艶")]
+    return '<div class="ba stagger">' + "".join(f'<figure class="ba-item"><img src="{src}" alt="{esc(t)} ビフォーアフター" loading="lazy"><figcaption><b>{esc(t)}</b>{esc(d)}</figcaption></figure>' for src, t, d in items) + '</div><p class="small text-muted center" style="margin-top:14px">写真は当店のお客様の施術例（左：施術前／右：施術後）。</p>'
+
 def ctaband():
     return f'''
 <section class="ctaband">
-  <img src="img/interior-1.jpg" alt="" loading="lazy">
+  <img class="plx" src="img/interior-2.jpg" alt="" loading="lazy">
   <div class="wrap">
     <h2>ご予約・ご相談はお気軽に</h2>
-    <p>予約フォーム（入力内容をLINEで送信）・LINE・お電話からご予約いただけます。<br>初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
+    <p>空き状況カレンダーからのWEB予約・LINE・お電話からご予約いただけます。<br>初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
     <div class="cta">
-      <a class="btn btn-white" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a>
+      <a class="btn btn-white" href="reserve.html">{ICON['cal']}WEB予約（空き状況カレンダー）</a>
       <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     </div>
     <a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a>
@@ -254,7 +263,7 @@ def footer(fname=""):
       </div>
       <div>
         <h4>Menu</h4>
-        <ul>{links}<li><a href="reserve.html">ご予約・お問い合わせ</a></li></ul>
+        <ul>{links}<li><a href="reserve.html">WEB予約</a></li></ul>
       </div>
       <div>
         <h4>Links</h4>
@@ -272,7 +281,7 @@ def footer(fname=""):
 <nav class="stickybar" aria-label="予約・お問い合わせ">
   <a href="{SHOP['tel_href']}">{ICON['tel']}<b>電話する</b></a>
   <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINE予約</b></a>
-  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"入力欄へ戻る" if fname == "reserve.html" else "予約フォーム"}</b></a>
+  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"予約に戻る" if fname == "reserve.html" else "WEB予約"}</b></a>
 </nav>'''
 
 def jsonld():
@@ -296,8 +305,8 @@ def jsonld():
 
 def gate_script(fname):
     """仮公開用の簡易ゲート。localStorage にハッシュ一致トークンが無ければ gate.html へ。"""
-    return ('<script>(function(){try{if(localStorage.getItem("rb_gate")==="%s")return;}catch(e){}'
-            'document.documentElement.style.visibility="hidden";location.replace("gate.html?next="+encodeURIComponent(location.pathname.split("/").pop()+location.search));})();</script>' % gate_hash(GATE_PASS))
+    return ('<script>(function(){var T="%s";try{if(localStorage.getItem("rb_gate")===T)return;}catch(e){}try{if(sessionStorage.getItem("rb_gate")===T)return;}catch(e){}'
+            'document.documentElement.style.visibility="hidden";location.replace("gate.html?next="+encodeURIComponent((location.pathname.split("/").pop()||"index.html")+location.search+location.hash));})();</script>' % gate_hash(GATE_PASS))
 
 def build_gate():
     h = gate_hash(GATE_PASS)
@@ -310,17 +319,32 @@ def build_gate():
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="img/logo-s.png">
 <link rel="stylesheet" href="assets/style.css?v={VER}">
-<style>.gate{{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}}.gate .box{{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 28px;max-width:420px;width:100%}}.gate img{{height:34px;margin:0 auto 18px}}.gate h1{{font-size:20px;text-align:center;margin-bottom:6px}}.gate p{{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}}.gate input{{width:100%;font:inherit;font-size:18px;letter-spacing:.2em;text-align:center;padding:12px 14px;border:1px solid #cfc8b9;border-radius:10px;background:#fbfaf7}}.gate .btn{{width:100%;margin-top:12px}}.gate .err{{color:#c0392b;font-size:13px;text-align:center;margin:10px 0 0;min-height:1.5em}}</style>
+<style>.gate{{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}}.gate .box{{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 28px;max-width:420px;width:100%}}.gate img{{height:34px;margin:0 auto 18px}}.gate h1{{font-size:20px;text-align:center;margin-bottom:6px}}.gate p{{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}}.gate input{{width:100%;font:inherit;font-size:18px;letter-spacing:.2em;text-align:center;padding:12px 14px;border:1px solid #cfc8b9;border-radius:10px;background:#fbfaf7}}.gate .btn{{width:100%;margin-top:12px}}.gate .err{{color:#c0392b;font-size:13px;text-align:center;margin:10px 0 0;min-height:1.5em}}.gate .safe{{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line);font-size:12.5px;color:#3d3a34;line-height:1.7}}.gate .safe b{{display:block;color:var(--green);font-size:13px;margin-bottom:6px}}.gate .safe ul{{padding-left:18px;list-style:disc;margin:0}}.gate .safe li{{margin-bottom:4px}}</style>
 </head>
 <body>
 <main class="gate">
   <form class="box" id="gate">
     <img src="img/logo.png" alt="RE・BORN hair &amp; relax">
-    <h1>サイト案の閲覧用パスワード</h1>
-    <p>このページは制作中のサイト案です。パスワードを入力してください。</p>
+    <h1>新しいホームページ案（非公開プレビュー）</h1>
+    <p>「新しいホームページはこんな雰囲気・こんな機能にできます」というデザインの見本です。写真・文言・メニューはすべて差し替え可能で、この内容で公開するものではありません。<br>ご確認用のパスワードを入力してください。</p>
     <input type="password" name="pw" inputmode="numeric" autocomplete="off" autofocus aria-label="パスワード">
     <button type="submit" class="btn btn-primary">開く</button>
     <p class="err" id="gate-err" aria-live="polite"></p>
+    <div class="safe">
+      <b>このページは一般には公開されていません</b>
+      <ul>
+        <li>このURLとパスワードの両方を知っている方だけが閲覧できます。</li>
+        <li>Google などの検索エンジンに登録されない設定（noindex）にしており、検索しても出てきません。</li>
+        <li>現在のホームページ（re-born2005.com）には一切影響ありません。そのまま通常どおり表示されています。</li>
+        <li>ご確認が終わりましたら、このプレビューは削除します。写真・文言の差し替えはご要望に合わせて何度でも調整できます。</li>
+      </ul>
+      <b style="margin-top:14px">この見本の作り方</b>
+      <ul>
+        <li>現在のホームページ（re-born2005.com）とホットペッパービューティーの掲載内容・写真をもとに構成しています。Instagram（@reborn84）はリンク先として掲載しています。</li>
+        <li>営業時間・料金・スタッフ紹介は上記からの転記です。メンズ・理容メニューの価格はホットペッパー掲載のクーポン価格を載せています（要確認）。</li>
+        <li>「WEB予約」ページのカレンダーの空き状況はデモ用のダミーです。実際の予約は現在どおりお電話・LINE・ホットペッパーで承ります。</li>
+      </ul>
+    </div>
   </form>
 </main>
 <script>
@@ -329,11 +353,16 @@ def build_gate():
   function hash(pw){{var h=5381;for(var i=0;i<pw.length;i++){{h=((Math.imul(h,33))^pw.charCodeAt(i))>>>0;}}return h.toString(16)+pw.length;}}
   var f=document.getElementById("gate"),err=document.getElementById("gate-err");
   var next=new URLSearchParams(location.search).get("next")||"index.html";
-  if(!/^[a-z0-9_-]+\.html(\?.*)?$/i.test(next))next="index.html";
-  try{{if(localStorage.getItem("rb_gate")===EXPECT){{location.replace(next);return;}}}}catch(e){{}}
+  if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#[a-z0-9_-]*)?$/i.test(next))next="index.html";
+  function has(){{try{{if(localStorage.getItem("rb_gate")===EXPECT)return true;}}catch(e){{}}try{{if(sessionStorage.getItem("rb_gate")===EXPECT)return true;}}catch(e){{}}return false;}}
+  if(has()){{location.replace(next);return;}}
+  if(location.protocol==="file:"){{err.textContent="ローカルファイルとして開いています。ブラウザによってはパスワードの保存が効かないため、公開URLからご覧ください。";}}
   f.addEventListener("submit",function(ev){{ev.preventDefault();var pw=f.pw.value.trim();
-    if(hash(pw)===EXPECT){{try{{localStorage.setItem("rb_gate",EXPECT);}}catch(e){{}}location.replace(next);}}
-    else{{err.textContent="パスワードが違います。";f.pw.select();}}}});
+    if(hash(pw)!==EXPECT){{err.textContent="パスワードが違います。";f.pw.select();return;}}
+    try{{localStorage.setItem("rb_gate",EXPECT);}}catch(e){{}}
+    try{{sessionStorage.setItem("rb_gate",EXPECT);}}catch(e){{}}
+    if(!has()){{err.textContent="ブラウザの設定（プライベートモードやサイトデータのブロック）により保存できませんでした。通常のブラウザでお試しください。";return;}}
+    location.replace(next);}});
 }})();
 </script>
 </body>
@@ -363,6 +392,7 @@ def page(fname, title, desc, body, active=None, og_title=None):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css?v={VER}">
+<link rel="stylesheet" href="assets/motion.css?v={VER}">
 {jsonld()}
 </head>
 <body>
@@ -372,6 +402,7 @@ def page(fname, title, desc, body, active=None, og_title=None):
 </main>
 {footer(fname)}
 <script src="assets/main.js?v={VER}" defer></script>
+<script src="assets/motion.js?v={VER}" defer></script>
 </body>
 </html>'''
 
@@ -390,13 +421,13 @@ def menu_card(m):
     q = quote("初回限定：" + m["name"])
     return f'''
 <article class="card rv">
-  <figure><img src="{m['img']}" alt="{esc(m['name'])}" loading="lazy" width="300" height="450"><span class="tag">{esc(m['tag'])}</span></figure>
+  <figure class="rv-img from-up"><img src="{m['img']}" alt="{esc(m['name'])}" loading="lazy" width="300" height="450"><span class="tag">{esc(m['tag'])}</span></figure>
   <div class="body">
     <h3>{esc(m['name'])}</h3>
     <div class="price"><s>通常 {yen(m['normal'])}円</s><b>¥{yen(m['first'])}</b><em>初回限定</em></div>
     <p>{esc(m['desc'])}</p>
     <div class="meta"><span>⏱ {esc(m['time'])}</span><span>含：{esc(m['inc'])}</span></div>
-    <a class="go" href="reserve.html?menu={q}">このメニューで予約する →</a>
+    <a class="go" href="reserve.html">空き状況を見て予約する →</a>
   </div>
 </article>'''
 
@@ -408,23 +439,23 @@ def voice_card(v, full=False, h="h3"):
     </dl>''' if full else f'<p class="quote">「{esc(v["q2"])}」</p>'
     return f'''
 <article class="voice rv">
-  <figure><img src="{v['img']}" alt="{esc(v['who'])}" loading="lazy"></figure>
+  <figure class="rv-img"><img src="{v['img']}" alt="{esc(v['who'])}" loading="lazy"></figure>
   <div class="body"><{h}>{esc(v['title'])}</{h}><div class="who">{esc(v['who'])}</div>{body}</div>
 </article>'''
 
 def staff_card(s):
     return f'''
 <a class="staff rv" href="staff.html#{s['en'].split()[1].lower()}">
-  <figure><img src="{s['img']}" alt="{esc(s['name'])}" loading="lazy"></figure>
+  <figure class="rv-img from-up"><img src="{s['img']}" alt="{esc(s['name'])}" loading="lazy"></figure>
   <div class="body"><div class="role">{esc(s['role'])}</div><h3>{esc(s['name'])}<small>{esc(s['en'])}</small></h3><p>得意：{esc(s['good'][:28])}{'…' if len(s['good'])>28 else ''}</p></div>
 </a>'''
 
 def access_block(with_route=True):
     route = f'''
 <div class="route mt40">
-  <figure class="rv"><img src="img/access-1.png" alt="国道17号 聖石橋交差点" loading="lazy"><figcaption><b>Step 1</b>国道17号線の聖石橋の交差点を観音様方面に進みます。</figcaption></figure>
-  <figure class="rv"><img src="img/access-2.png" alt="店舗前の様子" loading="lazy"><figcaption><b>Step 2</b>聖石橋を渡り一つ目の信号手前、左側に茶色の木の格子が見えてきましたら、こちらが当店です。</figcaption></figure>
-  <figure class="rv"><img src="img/exterior.jpg" alt="店舗外観と駐車場" loading="lazy"><figcaption><b>Parking</b>駐車場は店舗目の前に広々10台。皆様のご来店を心よりお待ちしております。</figcaption></figure>
+  <figure class="rv-img"><img src="img/access-1.png" alt="国道17号 聖石橋交差点" loading="lazy"><figcaption><b>Step 1</b>国道17号線の聖石橋の交差点を観音様方面に進みます。</figcaption></figure>
+  <figure class="rv-img from-right"><img src="img/access-2.png" alt="店舗前の様子" loading="lazy"><figcaption><b>Step 2</b>聖石橋を渡り一つ目の信号手前、左側に茶色の木の格子が見えてきましたら、こちらが当店です。</figcaption></figure>
+  <figure class="rv-img"><img src="img/exterior.jpg" alt="店舗外観と駐車場" loading="lazy"><figcaption><b>Parking</b>駐車場は店舗目の前に広々10台。皆様のご来店を心よりお待ちしております。</figcaption></figure>
 </div>''' if with_route else ""
     return f'''
 <div class="access">
@@ -451,15 +482,17 @@ def build_index():
     concerns = "".join(f"<li>{esc(c)}</li>" for c in CONCERNS)
     reasons = "".join(f'''
 <div class="reason rv">
-  <figure><img src="{img}" alt="{esc(t)}" loading="lazy"></figure>
+  <figure class="rv-img{" from-right" if int(n) % 2 == 0 else ""}"><img src="{img}" alt="{esc(t)}" loading="lazy"></figure>
   <div><div class="num">Reason {n}</div><h3>{esc(t)}</h3><p>{esc(d)}</p></div>
 </div>''' for n, t, img, d in REASONS)
     cards = "".join(menu_card(m) for m in RECOMMEND[:3])
     voices = "".join(voice_card(v) for v in VOICES[:3])
     staff = "".join(staff_card(s) for s in STAFF[:4])
-    styles = "".join(f'<a href="{SHOP["ig"]}" target="_blank" rel="noopener"><img src="{m["img"]}" alt="{esc(m["name"])}" loading="lazy"></a>' for m in RECOMMEND)
+    style_imgs = [("img/style-straight.jpg", "髪質改善ストレート"), ("img/menu-stcurl.jpg", "ふんわりストカール"), ("img/style-mens-perm-1.jpg", "メンズパーマ"), ("img/menu-color.jpg", "艶髪カラー"), ("img/style-mens-fade.jpg", "フェードカット"), ("img/style-mens-perm-2.jpg", "韓国風フェザーパーマ"), ("img/menu-perm.jpg", "ふんわり小顔パーマ"), ("img/style-mens-3.jpg", "大人メンズスタイル"), ("img/kitsuke-12.jpg", "成人式ヘアセット"), ("img/style-mens-5.jpg", "ウェーブパーマ"), ("img/menu-harikoshi.jpg", "ハリコシカラー"), ("img/style-mens-4.jpg", "ツイストパーマ")]
+    styles = "".join(f'<a href="{SHOP["ig"]}" target="_blank" rel="noopener"><img src="{src}" alt="{esc(alt)}" loading="lazy"></a>' for src, alt in style_imgs)
     badges = "".join(f"<li>{b}</li>" for b in ["当日予約OK", "個室2部屋", "お子様同伴OK", "メンズ大歓迎", "駐車場10台", "バリアフリー"])
     body = f'''
+<div class="intro" id="intro" aria-hidden="true"><img src="img/logo.png" alt=""><span class="line"></span><span class="en">Hair &amp; Relax — Takasaki</span></div>
 <section class="hero">
   <img class="bg" src="img/exterior.jpg" alt="RE・BORN hair & relax 店舗外観" fetchpriority="high">
   <div class="wrap">
@@ -468,7 +501,7 @@ def build_index():
     <p class="lead">高崎市聖石町の髪質改善が得意なリラックスサロン。高い天井と個室のある居心地のよい空間で、お子様からシニアの方、メンズまで、家族みんなの「きれい」と「かっこいい」をお手伝いします。</p>
     <ul class="badges">{badges}</ul>
     <div class="cta">
-      <a class="btn btn-primary" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a>
+      <a class="btn btn-primary" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a>
       <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
       <a class="btn btn-white" href="{SHOP['tel_href']}">{ICON['tel']}{SHOP['tel']}</a>
     </div>
@@ -476,6 +509,7 @@ def build_index():
   <div class="scroll">Scroll</div>
 </section>
 
+<div class="marquee" aria-hidden="true"><div class="track">{marquee()}</div></div>
 <div class="infostrip">
   <div class="wrap">
     <div class="cell">{ICON['clock']}<div><b>Open</b><span>{SHOP['hours']}<br>最終受付 {SHOP['last']}</span></div></div>
@@ -489,9 +523,9 @@ def build_index():
   <div class="wrap">
     {sec_head("Concerns", "こんなお悩みありませんか？")}
     <div class="concern">
-      <ul class="list rv">{concerns}</ul>
+      <ul class="list stagger">{concerns}</ul>
       <div>
-        <figure class="rv"><img src="img/collage.jpg" alt="店内の様子" loading="lazy"></figure>
+        <figure class="rv-img"><img src="img/collage.jpg" alt="店内の様子" loading="lazy"></figure>
         <div class="note rv mt24">もし1つでも当てはまれば、<br>当サロンへお越しください。<small>髪質改善・ヘッドスパ・個室・三世代で通えるスタッフ。あなたの「困った」に、90年の技術と居心地で応えます。</small></div>
       </div>
     </div>
@@ -501,7 +535,7 @@ def build_index():
 <section class="sec alt">
   <div class="wrap">
     <div class="greet">
-      <figure class="rv"><img src="img/owner-work.jpg" alt="オーナー 廣上 猶造" loading="lazy"></figure>
+      <figure class="rv-img"><img src="img/owner-work.jpg" alt="オーナー 廣上 猶造" loading="lazy"></figure>
       <div class="rv">
         <span class="sec-head"><span class="en">Greeting</span></span>
         <h2 class="lead">高崎に4代続く、<br>創業90年の理美容室です。</h2>
@@ -525,6 +559,13 @@ def build_index():
 
 <section class="sec alt">
   <div class="wrap">
+    {sec_head("Before / After", "髪質改善で、髪はここまで変わります", "広がり・パサつき・うねり。カラーやストレートと同時に髪質を整える当店の看板メニューの実例です。")}
+    {before_after()}
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
     {sec_head("Recommended Menu", "おすすめメニュー", "初めての方は初回限定価格でお試しいただけます。すべてカット・シャンプー・スタイリング込みの価格です（税込）。")}
     <div class="cards">{cards}</div>
     <div class="more"><a class="btn btn-outline" href="menu.html">メニュー・料金をすべて見る</a></div>
@@ -541,7 +582,7 @@ def build_index():
   </div>
 </section>
 
-<section class="sec">
+<section class="sec alt">
   <div class="wrap">
     {sec_head("Voice", "お客様の声", "20代から60代まで、ご家族三世代で通ってくださるお客様の声をご紹介します。")}
     <div class="voices">{voices}</div>
@@ -549,7 +590,7 @@ def build_index():
   </div>
 </section>
 
-<section class="sec alt">
+<section class="sec">
   <div class="wrap">
     {sec_head("Staff", "スタッフ紹介", "世代を超えたスタッフが、カウンセリングから仕上げまで最後まで担当します。指名料はいただきません。")}
     <div class="staffgrid">{staff}</div>
@@ -557,15 +598,15 @@ def build_index():
   </div>
 </section>
 
-<section class="sec">
+<section class="sec alt">
   <div class="wrap">
     {sec_head("Style & Instagram", "スタイル・最新情報はInstagramで", "髪質改善のビフォーアフター、メンズパーマ、着付けなど最新のスタイルを日々更新しています。")}
-    <div class="igrid rv">{styles}</div>
+    <div class="igrid stagger">{styles}</div>
     <div class="more"><a class="btn btn-primary" href="{SHOP['ig']}" target="_blank" rel="noopener">{ICON['ig']}Instagram {SHOP['ig_id']} をフォロー</a></div>
   </div>
 </section>
 
-<section class="sec alt">
+<section class="sec">
   <div class="wrap">
     {sec_head("Access", "アクセス", "高崎駅西口から聖石橋方面へ。橋を渡り切った先の左手、茶色の木の格子が目印です。")}
     {access_block(with_route=False)}
@@ -589,6 +630,8 @@ def build_menu():
   <div class="wrap">
     {sec_head("Recommended", "おすすめメニュー（初回限定価格あり）", "カット・シャンプー・ブロー・スタイリング込み。施術時間の目安も記載しています。")}
     <div class="cards">{cards}</div>
+    <h3 class="center" style="margin:48px 0 18px;font-size:22px">髪質改善メニューの施術例</h3>
+    {before_after()}
     <div class="notice rv"><b>初回特典：</b>「ホームページをみました」とお伝えいただくと、高濃度炭酸泉（通常1,000円）をプレゼント。<b>1週間保証：</b>仕上がりにご満足いただけない場合は1週間以内なら無料でお直しします。</div>
   </div>
 </section>
@@ -597,7 +640,7 @@ def build_menu():
     {sec_head("Price List", "通常メニュー")}
     <div class="pricegrid">{groups}</div>
     <div class="notice rv">指名料はいただいておりません。早朝のご予約は別途料金にて承ります（前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください）。</div>
-    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}予約フォームへ</a></div>
+    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a></div>
   </div>
 </section>
 {ctaband()}'''
@@ -609,7 +652,7 @@ def build_staff():
         pid = s['en'].split()[1].lower()
         profs += f'''
 <div class="profile rv" id="{pid}">
-  <figure><img src="{s['img']}" alt="{esc(s['name'])}" loading="lazy"></figure>
+  <figure class="rv-img"><img src="{s['img']}" alt="{esc(s['name'])}" loading="lazy"></figure>
   <div>
     <div class="role">{esc(s['role'])}</div>
     <h2>{esc(s['name'])}<small>{esc(s['en'])}</small></h2>
@@ -627,7 +670,7 @@ def build_staff():
     body = pagehead("Staff", "スタッフ紹介", "世代を超えた女性スタッフと理容師免許を持つオーナー。カウンセリングから仕上げまで、最後まで同じスタイリストが担当します。", "img/staff-group.jpg") + f'''
 <section class="sec">
   <div class="wrap">{profs}
-    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}指名して予約する（指名料無料）</a></div>
+    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}スタイリストを指名して予約する（指名料無料）</a></div>
   </div>
 </section>
 {ctaband()}'''
@@ -662,7 +705,7 @@ def build_kitsuke():
 <section class="sec">
   <div class="wrap">
     {sec_head("Gallery", "当店で着付けをされた方のギャラリー", "画像をタップすると拡大します。成人式・卒業式・ブライダルシェービングもご相談ください。")}
-    <div class="gallery rv">{imgs}</div>
+    <div class="gallery stagger">{imgs}</div>
     <div class="notice rv">成人式・卒業式は毎年ご予約が集中します。お日にちが決まりましたら、お早めにLINEまたはお電話でご相談ください。</div>
   </div>
 </section>
@@ -671,51 +714,41 @@ def build_kitsuke():
     return page("kitsuke.html", "着付け（成人式・卒業式）", "RE・BORN hair & relax の着付け・ヘアセット事例ギャラリー。成人式・卒業式の着付けは個室で。着付け技能免許保有スタイリストが担当。", body)
 
 def build_reserve():
-    menu_opts = ["初回限定：ふんわり柔らかストカールエステ", "初回限定：柔らかストレートエステ", "初回限定：ふんわり小顔パーマ＆カラーエステ", "初回限定：艶髪カラーエステ",
-                 "初回限定：ハリコシカラーエステ", "初回限定：頭皮整体スパ 癒しコース", "カット", "カット＋カラー", "カット＋パーマ", "ストレートパーマ", "ヘッドスパ",
-                 "メンズカット＋シェービング", "メンズパーマ（ツイスト・スパイラル等）", "レディースシェービング", "着付け・ヘアセット", "相談して決めたい", "その他（ご要望欄に記入）"]
-    opts = "".join(f'<option value="{esc(o)}">{esc(o)}</option>' for o in menu_opts)
-    times = "".join(f'<option value="{h:02d}:{m:02d}">{h}:{m:02d}</option>' for h in range(9, 18) for m in (0, 30)) + '<option value="18:00">18:00</option><option value="18:30">18:30（カットのみ）</option>'
-    stylists = "".join(f'<option value="{esc(s["name"])}">{esc(s["name"])}（{esc(s["role"])}）</option>' for s in STAFF if s["role"] not in ("カインズパースン", "アシスタント"))
-    body = pagehead("Reservation", "ご予約・お問い合わせ", "予約フォーム（入力内容をLINEで送信）・LINE・お電話からご予約いただけます。当日のご予約はお電話が確実です。", "img/private-room.jpg") + f'''
+    import json as _json
+    menus = []
+    for i, m in enumerate(RECOMMEND):
+        mins = {"3〜3.5時間": 210, "2.5〜3時間": 180, "2〜2.5時間": 150, "2時間": 120, "1〜1.5時間": 90}[m["time"]]
+        menus.append(dict(id=f"r{i}", group="初回限定（初めての方）", name=m["name"], price=m["first"], minutes=mins, first=True, cutOnly=False))
+    regular = [("カット", 5700, 60, True), ("カット＋カラー", 13700, 120, False), ("カット＋艶めきハリコシカラー", 14700, 130, False), ("カット＋パーマ", 17700, 150, False),
+               ("カット＋ストレートパーマ", 23700, 180, False), ("カット＋ヘッドスパ（30分）", 10700, 100, False), ("ヘッドスパ（45分）", 7500, 45, False), ("レディースシェービング", 4400, 40, False)]
+    for i, (n, pr, mn, c) in enumerate(regular):
+        menus.append(dict(id=f"g{i}", group="通常メニュー", name=n, price=pr, minutes=mn, first=False, cutOnly=c))
+    mens = [("メンズカット＋シェービング＋眉毛カット", 5400, 60, True), ("カット＋フェザーパーマ（韓国風）＋シェービング", 12000, 150, False), ("カット＋スパイラル系パーマ＋シェービング", 12000, 150, False),
+            ("メンズカット＋アイロンパーマ＋シェービング", 11000, 140, False), ("メンズカット＋カラー", 11400, 120, False)]
+    for i, (n, pr, mn, c) in enumerate(mens):
+        menus.append(dict(id=f"m{i}", group="メンズ・理容メニュー", name=n, price=pr, minutes=mn, first=False, cutOnly=c))
+    stylists = [dict(id="any", name="指名なし", role="最も早い空きをご案内", img="")]
+    for st in STAFF:
+        if st["role"] in ("カインズパースン", "アシスタント"): continue
+        stylists.append(dict(id=st["en"].split()[1].lower(), name=st["name"], role=st["role"], img=st["img"]))
+    data = _json.dumps(dict(menus=menus, stylists=stylists), ensure_ascii=False)
+    body = pagehead("Reservation", "WEB予約", "24時間いつでも、空き状況を見ながらご予約いただけます。当日のご予約はお電話が確実です。", "img/shampoo-new.jpg") + f'''
 <section class="sec">
   <div class="wrap">
     <div class="resv">
-      <form class="form rv" id="resv-form" data-line-id="{SHOP['line_id']}" data-line-add="{SHOP['line_add']}" novalidate>
-        <h2>WEB予約フォーム</h2>
-        <p class="sub">入力内容が公式LINEへのメッセージとして自動で作成されます。送信はLINEアプリ内で行います。</p>
-        <ol class="steps"><li><b>入力</b>希望日時とメニューを選ぶ</li><li><b>LINEで送信</b>トーク画面が開くので送信</li><li><b>返信で確定</b>3営業日以内にお返事（当日・お急ぎは<a href="{SHOP['tel_href']}" style="text-decoration:underline">お電話</a>）</li></ol>
-        <div class="errbox" id="resv-error" hidden></div>
-        <p class="nojs" id="resv-nojs">このフォームはJavaScriptが必要です。表示されない場合は <a href="{SHOP['line_add']}" target="_blank" rel="noopener">公式LINE</a> または <a href="{SHOP['tel_href']}">お電話 {SHOP['tel']}</a> でご予約ください。</p>
-        <fieldset><legend>ご利用<i>必須</i></legend>
-          <div class="radios"><label><input type="radio" name="visit" value="初めて" checked>初めて</label><label><input type="radio" name="visit" value="2回目以降">2回目以降</label></div></fieldset>
-        <div class="field"><label for="f-menu">ご希望メニュー<i>必須</i></label><select id="f-menu" name="menu" required><option value="">選択してください</option>{opts}</select></div>
-        <div class="field"><label>第1希望日時<i>必須</i></label><div class="row2"><input type="date" name="date1" required aria-label="第1希望日"><select name="time1" required aria-label="第1希望時間"><option value="">時間</option>{times}</select></div></div>
-        <div class="field"><label>第2希望日時</label><div class="row2"><input type="date" name="date2" aria-label="第2希望日"><select name="time2" aria-label="第2希望時間"><option value="">時間</option>{times}</select></div></div>
-        <div class="field"><label for="f-stylist">ご指名（指名料無料）</label><select id="f-stylist" name="stylist"><option value="">指名なし</option>{stylists}</select></div>
-        <div class="row2">
-          <div class="field"><label for="f-name">お名前<i>必須</i></label><input id="f-name" type="text" name="name" required autocomplete="name" maxlength="40" placeholder="例）高崎 花子"></div>
-          <div class="field"><label for="f-tel">電話番号</label><input id="f-tel" type="tel" name="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="例）090-1234-5678"></div>
-        </div>
-        <div class="field"><label for="f-note">ご要望・ご相談</label><textarea id="f-note" name="note" maxlength="400" placeholder="髪のお悩み、お子様連れ、車椅子でのご来店、早朝希望など何でもどうぞ（400文字まで）"></textarea></div>
-        <div class="actions">
-          <button type="submit" class="btn btn-line" disabled>{ICON['line']}LINEで予約内容を送る</button>
-          <button type="button" class="btn btn-outline" id="resv-copy">予約内容をコピー</button>
-        </div>
-        <div class="preview" id="resv-preview" aria-live="polite"></div>
-        <p class="fallback" id="resv-fallback" hidden></p>
-        <p class="hint">※LINEでのメッセージ送信だけではご予約は完了しません。当店からの折り返しをもってご予約完了となります（返信は3営業日以内）。当日のご予約や、お急ぎの場合は営業時間内にお電話ください。<br>※初めてLINEをご利用の方は、先に <a href="{SHOP['line_add']}" target="_blank" rel="noopener" style="text-decoration:underline">友だち追加</a> をお願いします（ID検索：{SHOP['line_id']}）。</p>
-      </form>
+      <div class="bk rv" id="booking" data-line-id="{SHOP['line_id']}" aria-live="polite"></div>
+      <script type="application/json" id="booking-data">{data}</script>
       <aside class="side">
         <div class="box rv"><h2>お電話でのご予約</h2><a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a><p>受付 {SHOP['hours']}／定休日 {SHOP['closed']}<br>当日のご予約・お急ぎの方はお電話が確実です。</p><a class="btn btn-tel" href="{SHOP['tel_href']}" style="width:100%">{ICON['tel']}電話をかける</a></div>
-        <div class="box rv"><h2>LINEで直接メッセージ</h2><p>フォームを使わず、LINEで直接ご連絡いただいても大丈夫です。①お名前 ②ご希望日・時間 ③ご希望のメニュー（クーポンメニュー利用有り・無し）の3点をお知らせください。</p><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%">{ICON['line']}友だち追加してトークする</a><p class="hp" style="margin-top:8px">ID検索：{SHOP['line_id']}（@を忘れずにご入力ください）</p></div>
+        <div class="box rv"><h2>LINEでのご予約・ご相談</h2><p>個室をご希望の方、着付け・ブライダルシェービング、髪のお悩み相談は公式LINEからどうぞ。①お名前 ②ご希望日・時間 ③ご希望のメニュー（クーポンメニュー利用有り・無し）の3点をお知らせください。</p><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%">{ICON['line']}友だち追加してトークする</a><p class="hp" style="margin-top:8px">ID検索：{SHOP['line_id']}（@を忘れずにご入力ください）</p></div>
         <div class="box rv"><h2>ご予約に関するお願い</h2><ol><li>ご連絡無しで予約時間から大幅に遅刻された場合、施術内容によりお断りすることがあります。</li><li>無断キャンセルの場合、次回からのご予約を制限させていただくことがあります。</li><li>早朝のご予約は別途料金にて承ります。前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください。</li></ol></div>
         <p class="hp rv">ホットペッパービューティーからのネット予約は<a href="{SHOP['hpb']}" target="_blank" rel="noopener" style="text-decoration:underline">こちら</a>。</p>
       </aside>
     </div>
   </div>
-</section>'''
-    return page("reserve.html", "ご予約・お問い合わせ", "RE・BORN hair & relax のWEB予約フォーム。LINE・お電話でもご予約いただけます。当日予約OK。", body)
+</section>
+<script src="assets/booking.js?v={VER}" defer></script>'''
+    return page("reserve.html", "WEB予約", "RE・BORN hair & relax のWEB予約。空き状況カレンダーからメニュー・スタイリスト・日時を選んで24時間ご予約いただけます。", body)
 
 def build_privacy():
     raw = open(os.path.join(BASE, "..", "素材", "privacy.txt"), encoding="utf-8").read().strip().splitlines()

@@ -6,31 +6,51 @@
 <title>閲覧用パスワード｜RE・BORN hair & relax（サイト案）</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="img/logo-s.png">
-<link rel="stylesheet" href="assets/style.css?v=12">
-<style>.gate{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}.gate .box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 28px;max-width:420px;width:100%}.gate img{height:34px;margin:0 auto 18px}.gate h1{font-size:20px;text-align:center;margin-bottom:6px}.gate p{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}.gate input{width:100%;font:inherit;font-size:18px;letter-spacing:.2em;text-align:center;padding:12px 14px;border:1px solid #cfc8b9;border-radius:10px;background:#fbfaf7}.gate .btn{width:100%;margin-top:12px}.gate .err{color:#c0392b;font-size:13px;text-align:center;margin:10px 0 0;min-height:1.5em}</style>
+<link rel="stylesheet" href="assets/style.css?v=14">
+<style>.gate{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}.gate .box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 28px;max-width:420px;width:100%}.gate img{height:34px;margin:0 auto 18px}.gate h1{font-size:20px;text-align:center;margin-bottom:6px}.gate p{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}.gate input{width:100%;font:inherit;font-size:18px;letter-spacing:.2em;text-align:center;padding:12px 14px;border:1px solid #cfc8b9;border-radius:10px;background:#fbfaf7}.gate .btn{width:100%;margin-top:12px}.gate .err{color:#c0392b;font-size:13px;text-align:center;margin:10px 0 0;min-height:1.5em}.gate .safe{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line);font-size:12.5px;color:#3d3a34;line-height:1.7}.gate .safe b{display:block;color:var(--green);font-size:13px;margin-bottom:6px}.gate .safe ul{padding-left:18px;list-style:disc;margin:0}.gate .safe li{margin-bottom:4px}</style>
 </head>
 <body>
 <main class="gate">
   <form class="box" id="gate">
     <img src="img/logo.png" alt="RE・BORN hair &amp; relax">
-    <h1>サイト案の閲覧用パスワード</h1>
-    <p>このページは制作中のサイト案です。パスワードを入力してください。</p>
+    <h1>新しいホームページ案（非公開プレビュー）</h1>
+    <p>「新しいホームページはこんな雰囲気・こんな機能にできます」というデザインの見本です。写真・文言・メニューはすべて差し替え可能で、この内容で公開するものではありません。<br>ご確認用のパスワードを入力してください。</p>
     <input type="password" name="pw" inputmode="numeric" autocomplete="off" autofocus aria-label="パスワード">
     <button type="submit" class="btn btn-primary">開く</button>
     <p class="err" id="gate-err" aria-live="polite"></p>
+    <div class="safe">
+      <b>このページは一般には公開されていません</b>
+      <ul>
+        <li>このURLとパスワードの両方を知っている方だけが閲覧できます。</li>
+        <li>Google などの検索エンジンに登録されない設定（noindex）にしており、検索しても出てきません。</li>
+        <li>現在のホームページ（re-born2005.com）には一切影響ありません。そのまま通常どおり表示されています。</li>
+        <li>ご確認が終わりましたら、このプレビューは削除します。写真・文言の差し替えはご要望に合わせて何度でも調整できます。</li>
+      </ul>
+      <b style="margin-top:14px">この見本の作り方</b>
+      <ul>
+        <li>現在のホームページ（re-born2005.com）とホットペッパービューティーの掲載内容・写真をもとに構成しています。Instagram（@reborn84）はリンク先として掲載しています。</li>
+        <li>営業時間・料金・スタッフ紹介は上記からの転記です。メンズ・理容メニューの価格はホットペッパー掲載のクーポン価格を載せています（要確認）。</li>
+        <li>「WEB予約」ページのカレンダーの空き状況はデモ用のダミーです。実際の予約は現在どおりお電話・LINE・ホットペッパーで承ります。</li>
+      </ul>
+    </div>
   </form>
 </main>
 <script>
 (function(){
-  var EXPECT="dcfbb5656";
+  var EXPECT="7c5302c54";
   function hash(pw){var h=5381;for(var i=0;i<pw.length;i++){h=((Math.imul(h,33))^pw.charCodeAt(i))>>>0;}return h.toString(16)+pw.length;}
   var f=document.getElementById("gate"),err=document.getElementById("gate-err");
   var next=new URLSearchParams(location.search).get("next")||"index.html";
-  if(!/^[a-z0-9_-]+\.html(\?.*)?$/i.test(next))next="index.html";
-  try{if(localStorage.getItem("rb_gate")===EXPECT){location.replace(next);return;}}catch(e){}
+  if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#[a-z0-9_-]*)?$/i.test(next))next="index.html";
+  function has(){try{if(localStorage.getItem("rb_gate")===EXPECT)return true;}catch(e){}try{if(sessionStorage.getItem("rb_gate")===EXPECT)return true;}catch(e){}return false;}
+  if(has()){location.replace(next);return;}
+  if(location.protocol==="file:"){err.textContent="ローカルファイルとして開いています。ブラウザによってはパスワードの保存が効かないため、公開URLからご覧ください。";}
   f.addEventListener("submit",function(ev){ev.preventDefault();var pw=f.pw.value.trim();
-    if(hash(pw)===EXPECT){try{localStorage.setItem("rb_gate",EXPECT);}catch(e){}location.replace(next);}
-    else{err.textContent="パスワードが違います。";f.pw.select();}});
+    if(hash(pw)!==EXPECT){err.textContent="パスワードが違います。";f.pw.select();return;}
+    try{localStorage.setItem("rb_gate",EXPECT);}catch(e){}
+    try{sessionStorage.setItem("rb_gate",EXPECT);}catch(e){}
+    if(!has()){err.textContent="ブラウザの設定（プライベートモードやサイトデータのブロック）により保存できませんでした。通常のブラウザでお試しください。";return;}
+    location.replace(next);});
 })();
 </script>
 </body>
