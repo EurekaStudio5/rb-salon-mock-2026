@@ -5,7 +5,7 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "6"
+VER = "8"
 BASE_URL = "https://eurekastudio5.github.io/rb-salon-mock-2026/"  # 本番公開時は本番ドメインに変更
 
 SHOP = dict(
@@ -200,7 +200,7 @@ def header(active):
     <button class="burger" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
   </div>
 </header>
-<div class="drawer" id="drawer">
+<div class="drawer" id="drawer" inert>
   {drawer}
   <a href="reserve.html">ご予約・お問い合わせ<small>Reservation</small></a>
   <div class="cta">
@@ -219,7 +219,7 @@ def ctaband():
     <p>WEB予約フォーム・LINE・お電話からご予約いただけます。<br>初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
     <div class="cta">
       <a class="btn btn-white" href="reserve.html">{ICON['cal']}WEB予約フォーム</a>
-      <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで予約</a>
+      <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     </div>
     <a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a>
     <div class="hours">受付 {SHOP['hours']}（定休日：{SHOP['closed']}）</div>
@@ -263,7 +263,7 @@ def footer(fname=""):
 </footer>
 <nav class="stickybar" aria-label="予約・お問い合わせ">
   <a href="{SHOP['tel_href']}">{ICON['tel']}<b>電話する</b></a>
-  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINEで相談</b></a>
+  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINEで相談・予約</b></a>
   <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"入力欄へ戻る" if fname == "reserve.html" else "予約フォーム"}</b></a>
 </nav>'''
 
@@ -414,8 +414,8 @@ def build_index():
     <p class="lead">高崎市聖石町の髪質改善が得意なリラックスサロン。高い天井と個室のある居心地のよい空間で、お子様からシニアの方、メンズまで、家族みんなの「きれい」と「かっこいい」をお手伝いします。</p>
     <ul class="badges">{badges}</ul>
     <div class="cta">
-      <a class="btn btn-primary" href="reserve.html">{ICON['cal']}WEB予約フォーム</a>
-      <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで予約・相談</a>
+      <a class="btn btn-primary" href="reserve.html">{ICON['cal']}予約フォーム（LINEへ送信）</a>
+      <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
       <a class="btn btn-white" href="{SHOP['tel_href']}">{ICON['tel']}{SHOP['tel']}</a>
     </div>
   </div>
@@ -530,7 +530,7 @@ def build_menu():
         lis = "".join(f'<li><span>{esc(n)}{("<small>"+esc(s)+"</small>") if s else ""}</span><b>¥{yen(p)}</b></li>' for n, s, p in items)
         groups += f'<div class="pricegroup rv" id="{gid}"><h3>{esc(ja)}<small>{en}</small></h3><ul>{lis}</ul>{("<p class=note>※"+esc(note)+"</p>") if note else ""}</div>'
     jump = '<div class="jump">' + "".join(f'<a href="#{ "g-" + en.lower().replace(" ", "-").replace(chr(39), "").replace("/", "") }">{esc(ja)}</a>' for ja, en, items, note in PRICES) + '<a href="#recommend">初回限定</a></div>'
-    body = pagehead("Menu &amp; Price", "メニュー・料金", "初めての方は「おすすめメニュー」の初回限定価格をご利用ください（表示価格は税込）。" + jump, "img/products.jpg") + f'''
+    body = pagehead("Menu &amp; Price", "メニュー・料金", "初めての方は「おすすめメニュー」の初回限定価格（税込）をご利用ください。" + jump, "img/products.jpg") + f'''
 <section class="sec" id="recommend">
   <div class="wrap">
     {sec_head("Recommended", "おすすめメニュー（初回限定価格あり）", "カット・シャンプー・ブロー・スタイリング込み。施術時間の目安も記載しています。")}
@@ -621,7 +621,7 @@ def build_reserve():
                  "初回限定：ハリコシカラーエステ", "初回限定：頭皮整体スパ 癒しコース", "カット", "カット＋カラー", "カット＋パーマ", "ストレートパーマ", "ヘッドスパ",
                  "メンズカット＋シェービング", "メンズパーマ（ツイスト・スパイラル等）", "レディースシェービング", "着付け・ヘアセット", "相談して決めたい", "その他（ご要望欄に記入）"]
     opts = "".join(f'<option value="{esc(o)}">{esc(o)}</option>' for o in menu_opts)
-    times = "".join(f'<option value="{h}:{m:02d}">{h}:{m:02d}</option>' for h in range(9, 18) for m in (0, 30)) + '<option value="18:00">18:00</option><option value="18:30">18:30（カットのみ）</option>'
+    times = "".join(f'<option value="{h:02d}:{m:02d}">{h}:{m:02d}</option>' for h in range(9, 18) for m in (0, 30)) + '<option value="18:00">18:00</option><option value="18:30">18:30（カットのみ）</option>'
     stylists = "".join(f'<option value="{esc(s["name"])}">{esc(s["name"])}（{esc(s["role"])}）</option>' for s in STAFF if s["role"] not in ("カインズパースン", "アシスタント"))
     body = pagehead("Reservation", "ご予約・お問い合わせ", "WEB予約フォーム・LINE・お電話からご予約いただけます。当日のご予約はお電話が確実です。", "img/private-room.jpg") + f'''
 <section class="sec">
@@ -632,6 +632,7 @@ def build_reserve():
         <p class="sub">入力内容が公式LINEへのメッセージとして自動で作成されます。送信はLINEアプリ内で行います。</p>
         <ol class="steps"><li><b>入力</b>希望日時とメニューを選ぶ</li><li><b>LINEで送信</b>トーク画面が開くので送信</li><li><b>返信で確定</b>3営業日以内にお返事（当日・お急ぎは<a href="{SHOP['tel_href']}" style="text-decoration:underline">お電話</a>）</li></ol>
         <div class="errbox" id="resv-error" hidden></div>
+        <p class="nojs" id="resv-nojs">このフォームはJavaScriptが必要です。表示されない場合は <a href="{SHOP['line_add']}" target="_blank" rel="noopener">公式LINE</a> または <a href="{SHOP['tel_href']}">お電話 {SHOP['tel']}</a> でご予約ください。</p>
         <fieldset><legend>ご利用<i>必須</i></legend>
           <div class="radios"><label><input type="radio" name="visit" value="初めて" checked>初めて</label><label><input type="radio" name="visit" value="2回目以降">2回目以降</label></div></fieldset>
         <div class="field"><label for="f-menu">ご希望メニュー<i>必須</i></label><select id="f-menu" name="menu" required><option value="">選択してください</option>{opts}</select></div>
@@ -644,7 +645,7 @@ def build_reserve():
         </div>
         <div class="field"><label for="f-note">ご要望・ご相談</label><textarea id="f-note" name="note" maxlength="400" placeholder="髪のお悩み、お子様連れ、車椅子でのご来店、早朝希望など何でもどうぞ（400文字まで）"></textarea></div>
         <div class="actions">
-          <button type="submit" class="btn btn-line">{ICON['line']}LINEを開いて予約内容を送る</button>
+          <button type="submit" class="btn btn-line" disabled>{ICON['line']}LINEを開いて予約内容を送る</button>
           <button type="button" class="btn btn-outline" id="resv-copy">予約内容をコピー</button>
         </div>
         <div class="preview" id="resv-preview" aria-live="polite"></div>

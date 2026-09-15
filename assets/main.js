@@ -79,8 +79,18 @@
 
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
     var iso = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
-    var today = new Date(); today.setHours(0, 0, 0, 0);
-    ['date1', 'date2'].forEach(function (n) { var el = form.querySelector('[name="' + n + '"]'); if (el) el.min = iso(today); });
+    var today, now;
+    function refreshClock() {
+      now = new Date(); today = new Date(now); today.setHours(0, 0, 0, 0);
+      ['date1', 'date2'].forEach(function (n) { var el = form.querySelector('[name="' + n + '"]'); if (el) el.min = iso(today); });
+    }
+    refreshClock();
+    // enable submit only once JS is ready (no-JS users get the LINE/phone links instead)
+    var submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = false;
+    var noJsNote = document.getElementById('resv-nojs');
+    if (noJsNote) noJsNote.hidden = true;
+    function mins(t) { var m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? (+m[1]) * 60 + (+m[2]) : NaN; }
 
     // preselect menu from ?menu=...
     try {
@@ -118,7 +128,8 @@
       lines.push('【ご予約希望】ホームページの予約フォームから');
       lines.push('お名前：' + val('name') + ' 様');
       lines.push('ご利用：' + val('visit'));
-      lines.push('メニュー：' + val('menu') + (/^初回限定/.test(val('menu')) ? '（初回限定価格の利用あり）' : ''));
+      lines.push('メニュー：' + val('menu'));
+      lines.push('クーポン（初回限定価格）：' + (/^初回限定/.test(val('menu')) ? '利用あり' : '利用なし'));
       lines.push('第1希望：' + (fmtDate(val('date1')) + ' ' + val('time1')).trim());
       if (val('date2') || val('time2')) { lines.push('第2希望：' + (fmtDate(val('date2')) + ' ' + val('time2')).trim()); }
       lines.push('ご指名：' + (val('stylist') || '指名なし'));
@@ -129,7 +140,8 @@
     function fieldEl(n) { return form.querySelector('[name="' + n + '"]'); }
     function validate() {
       var errors = [];
-      form.querySelectorAll('[aria-invalid]').forEach(function (el) { el.removeAttribute('aria-invalid'); });
+      refreshClock();
+      form.querySelectorAll('[aria-invalid]').forEach(function (el) { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); });
       function bad(n, msg) { errors.push({ el: fieldEl(n), msg: msg }); }
       if (!val('name')) bad('name', 'お名前をご入力ください。');
       if (!val('menu')) bad('menu', 'ご希望メニューを選択してください。');
@@ -144,10 +156,11 @@
         if (d < today) { bad(dn, label + 'は今日以降の日付を選択してください。'); return; }
         if (CLOSED_DAYS.indexOf(d.getDay()) >= 0) { bad(dn, label + '：月曜日・火曜日は定休日です。別の日をお選びください。'); return; }
         var last = isCutOnly(val('menu')) ? LAST_CUT : LAST_OTHER;
-        if (ts > last) { bad(tn, label + '：このメニューの最終受付は ' + last + ' です。'); return; }
+        var tm = mins(ts);
+        if (isNaN(tm)) { bad(tn, label + 'の時間が正しくありません。'); return; }
+        if (tm > mins(last)) { bad(tn, label + '：このメニューの最終受付は ' + last + ' です。'); return; }
         if (d.getTime() === today.getTime()) {
-          var now = new Date(), hm = pad(now.getHours()) + ':' + pad(now.getMinutes());
-          if (ts <= hm) bad(tn, label + '：本日のこの時間は過ぎています。当日のご予約はお電話が確実です。');
+          if (tm <= now.getHours() * 60 + now.getMinutes()) bad(tn, label + '：本日のこの時間は過ぎています。当日のご予約はお電話が確実です。');
         }
       };
       checkSlot('date1', 'time1', '第1希望', true);
@@ -155,7 +168,7 @@
       if (buildText().length > 1500) bad('note', 'ご要望が長すぎます。1,500文字以内にまとめるか、お電話でご相談ください。');
       if (errors.length) {
         var seen = {};
-        errors.forEach(function (e) { if (e.el) e.el.setAttribute('aria-invalid', 'true'); });
+        errors.forEach(function (e) { if (e.el) { e.el.setAttribute('aria-invalid', 'true'); e.el.setAttribute('aria-describedby', 'resv-error'); } });
         var msgs = errors.map(function (e) { return e.msg; }).filter(function (m) { if (seen[m]) return false; seen[m] = true; return true; });
         if (errBox) { errBox.innerHTML = '<b>ご確認ください</b><ul>' + msgs.map(function (m) { return '<li>' + m.replace(/[<>&]/g, '') + '</li>'; }).join('') + '</ul>'; errBox.hidden = false; }
         // focus the first invalid field in DOM order
@@ -174,9 +187,13 @@
         fallback.hidden = false;
       }
     }
-    form.addEventListener('input', function () {
-      if (preview && preview.classList.contains('show')) { preview.textContent = buildText(); }
-    });
+    function invalidateOutputs() {
+      // anything shown so far may be stale after an edit: hide the LINE link until re-validated
+      if (fallback) { fallback.hidden = true; fallback.innerHTML = ''; }
+      if (preview && preview.classList.contains('show')) { preview.textContent = buildText() + '\n（内容を変更しました。もう一度ボタンを押してください）'; }
+    }
+    form.addEventListener('input', invalidateOutputs);
+    form.addEventListener('change', invalidateOutputs);
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       if (!validate()) return;
@@ -187,6 +204,7 @@
     });
     if (copyBtn) {
       copyBtn.addEventListener('click', function () {
+        if (!validate()) return;
         var text = buildText();
         showPreview(text);
         var done = function () { copyBtn.textContent = 'コピーしました'; setTimeout(function () { copyBtn.textContent = '予約内容をコピー'; }, 1800); };
