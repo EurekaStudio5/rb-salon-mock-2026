@@ -5,7 +5,15 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "11"
+VER = "12"
+GATE_PASS = "775775"  # 仮公開のパスワード（Shingo指示 2026-09-15）
+
+def gate_hash(pw):
+    # 軽量ハッシュ（gate.html の JS と同じ計算式）: 平文をHTMLに置かないためのもの。暗号強度は求めていない
+    h = 5381
+    for ch in pw:
+        h = ((h * 33) ^ ord(ch)) & 0xFFFFFFFF
+    return format(h, "x") + str(len(pw))
 BASE_URL = "https://eurekastudio5.github.io/rb-salon-mock-2026/"  # 本番公開時は本番ドメインに変更
 
 SHOP = dict(
@@ -263,8 +271,8 @@ def footer(fname=""):
 </footer>
 <nav class="stickybar" aria-label="予約・お問い合わせ">
   <a href="{SHOP['tel_href']}">{ICON['tel']}<b>電話する</b></a>
-  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINEで相談・予約</b></a>
-  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"入力欄へ戻る" if fname == "reserve.html" else "予約フォーム(LINE)"}</b></a>
+  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINE予約</b></a>
+  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"入力欄へ戻る" if fname == "reserve.html" else "予約フォーム"}</b></a>
 </nav>'''
 
 def jsonld():
@@ -286,6 +294,51 @@ def jsonld():
     }
     return '<script type="application/ld+json">%s</script>' % json.dumps(data, ensure_ascii=False, indent=1)
 
+def gate_script(fname):
+    """仮公開用の簡易ゲート。localStorage にハッシュ一致トークンが無ければ gate.html へ。"""
+    return ('<script>(function(){try{if(localStorage.getItem("rb_gate")==="%s")return;}catch(e){}'
+            'document.documentElement.style.visibility="hidden";location.replace("gate.html?next="+encodeURIComponent(location.pathname.split("/").pop()+location.search));})();</script>' % gate_hash(GATE_PASS))
+
+def build_gate():
+    h = gate_hash(GATE_PASS)
+    return f'''<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>閲覧用パスワード｜RE・BORN hair & relax（サイト案）</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="img/logo-s.png">
+<link rel="stylesheet" href="assets/style.css?v={VER}">
+<style>.gate{{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}}.gate .box{{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 28px;max-width:420px;width:100%}}.gate img{{height:34px;margin:0 auto 18px}}.gate h1{{font-size:20px;text-align:center;margin-bottom:6px}}.gate p{{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}}.gate input{{width:100%;font:inherit;font-size:18px;letter-spacing:.2em;text-align:center;padding:12px 14px;border:1px solid #cfc8b9;border-radius:10px;background:#fbfaf7}}.gate .btn{{width:100%;margin-top:12px}}.gate .err{{color:#c0392b;font-size:13px;text-align:center;margin:10px 0 0;min-height:1.5em}}</style>
+</head>
+<body>
+<main class="gate">
+  <form class="box" id="gate">
+    <img src="img/logo.png" alt="RE・BORN hair &amp; relax">
+    <h1>サイト案の閲覧用パスワード</h1>
+    <p>このページは制作中のサイト案です。パスワードを入力してください。</p>
+    <input type="password" name="pw" inputmode="numeric" autocomplete="off" autofocus aria-label="パスワード">
+    <button type="submit" class="btn btn-primary">開く</button>
+    <p class="err" id="gate-err" aria-live="polite"></p>
+  </form>
+</main>
+<script>
+(function(){{
+  var EXPECT="{h}";
+  function hash(pw){{var h=5381;for(var i=0;i<pw.length;i++){{h=((Math.imul(h,33))^pw.charCodeAt(i))>>>0;}}return h.toString(16)+pw.length;}}
+  var f=document.getElementById("gate"),err=document.getElementById("gate-err");
+  var next=new URLSearchParams(location.search).get("next")||"index.html";
+  if(!/^[a-z0-9_-]+\.html(\?.*)?$/i.test(next))next="index.html";
+  try{{if(localStorage.getItem("rb_gate")===EXPECT){{location.replace(next);return;}}}}catch(e){{}}
+  f.addEventListener("submit",function(ev){{ev.preventDefault();var pw=f.pw.value.trim();
+    if(hash(pw)===EXPECT){{try{{localStorage.setItem("rb_gate",EXPECT);}}catch(e){{}}location.replace(next);}}
+    else{{err.textContent="パスワードが違います。";f.pw.select();}}}});
+}})();
+</script>
+</body>
+</html>'''
+
 def page(fname, title, desc, body, active=None, og_title=None):
     full_title = title + "｜RE・BORN hair & relax（高崎市聖石町）" if fname != "index.html" else title
     return f'''<!DOCTYPE html>
@@ -305,6 +358,7 @@ def page(fname, title, desc, body, active=None, og_title=None):
 <meta property="og:image" content="{BASE_URL}img/og-image.jpg">
 <meta property="og:locale" content="ja_JP">
 <link rel="icon" href="img/logo-s.png">
+{gate_script(fname)}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&display=swap" rel="stylesheet">
@@ -409,7 +463,7 @@ def build_index():
 <section class="hero">
   <img class="bg" src="img/exterior.jpg" alt="RE・BORN hair & relax 店舗外観" fetchpriority="high">
   <div class="wrap">
-    <div class="eyebrow">Hair &amp; Relax Salon — Takasaki, Gunma</div>
+    <div class="eyebrow">Hair &amp; Relax Salon, Takasaki</div>
     <h1>地域に愛されて90年。<br>三世代で通える、<br>もうひとつのリビング。</h1>
     <p class="lead">高崎市聖石町の髪質改善が得意なリラックスサロン。高い天井と個室のある居心地のよい空間で、お子様からシニアの方、メンズまで、家族みんなの「きれい」と「かっこいい」をお手伝いします。</p>
     <ul class="badges">{badges}</ul>
@@ -645,7 +699,7 @@ def build_reserve():
         </div>
         <div class="field"><label for="f-note">ご要望・ご相談</label><textarea id="f-note" name="note" maxlength="400" placeholder="髪のお悩み、お子様連れ、車椅子でのご来店、早朝希望など何でもどうぞ（400文字まで）"></textarea></div>
         <div class="actions">
-          <button type="submit" class="btn btn-line" disabled>{ICON['line']}LINEを開いて予約内容を送る</button>
+          <button type="submit" class="btn btn-line" disabled>{ICON['line']}LINEで予約内容を送る</button>
           <button type="button" class="btn btn-outline" id="resv-copy">予約内容をコピー</button>
         </div>
         <div class="preview" id="resv-preview" aria-live="polite"></div>
@@ -678,6 +732,7 @@ def main():
     pages = {
         "index.html": build_index(), "menu.html": build_menu(), "staff.html": build_staff(), "voice.html": build_voice(),
         "access.html": build_access(), "faq.html": build_faq(), "kitsuke.html": build_kitsuke(), "reserve.html": build_reserve(), "privacy.html": build_privacy(),
+        "gate.html": build_gate(),
     }
     for f, h in pages.items():
         with open(os.path.join(BASE, f), "w", encoding="utf-8", newline="\n") as fp:

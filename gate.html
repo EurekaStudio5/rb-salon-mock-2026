@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>閲覧用パスワード｜RE・BORN hair & relax（サイト案）</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="img/logo-s.png">
+<link rel="stylesheet" href="assets/style.css?v=12">
+<style>.gate{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}.gate .box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 28px;max-width:420px;width:100%}.gate img{height:34px;margin:0 auto 18px}.gate h1{font-size:20px;text-align:center;margin-bottom:6px}.gate p{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}.gate input{width:100%;font:inherit;font-size:18px;letter-spacing:.2em;text-align:center;padding:12px 14px;border:1px solid #cfc8b9;border-radius:10px;background:#fbfaf7}.gate .btn{width:100%;margin-top:12px}.gate .err{color:#c0392b;font-size:13px;text-align:center;margin:10px 0 0;min-height:1.5em}</style>
+</head>
+<body>
+<main class="gate">
+  <form class="box" id="gate">
+    <img src="img/logo.png" alt="RE・BORN hair &amp; relax">
+    <h1>サイト案の閲覧用パスワード</h1>
+    <p>このページは制作中のサイト案です。パスワードを入力してください。</p>
+    <input type="password" name="pw" inputmode="numeric" autocomplete="off" autofocus aria-label="パスワード">
+    <button type="submit" class="btn btn-primary">開く</button>
+    <p class="err" id="gate-err" aria-live="polite"></p>
+  </form>
+</main>
+<script>
+(function(){
+  var EXPECT="dcfbb5656";
+  function hash(pw){var h=5381;for(var i=0;i<pw.length;i++){h=((Math.imul(h,33))^pw.charCodeAt(i))>>>0;}return h.toString(16)+pw.length;}
+  var f=document.getElementById("gate"),err=document.getElementById("gate-err");
+  var next=new URLSearchParams(location.search).get("next")||"index.html";
+  if(!/^[a-z0-9_-]+\.html(\?.*)?$/i.test(next))next="index.html";
+  try{if(localStorage.getItem("rb_gate")===EXPECT){location.replace(next);return;}}catch(e){}
+  f.addEventListener("submit",function(ev){ev.preventDefault();var pw=f.pw.value.trim();
+    if(hash(pw)===EXPECT){try{localStorage.setItem("rb_gate",EXPECT);}catch(e){}location.replace(next);}
+    else{err.textContent="パスワードが違います。";f.pw.select();}});
+})();
+</script>
+</body>
+</html>
