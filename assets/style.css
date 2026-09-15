@@ -272,7 +272,7 @@ html{scroll-padding-bottom:110px}
 .stickybar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#fff;font-size:12px;letter-spacing:.02em;padding:8px 4px;border-radius:10px;background:rgba(255,255,255,.08);min-height:52px;white-space:nowrap}
 .stickybar a svg{width:20px;height:20px}
 .stickybar a.line{background:var(--line-brand)}
-.stickybar a.web{background:var(--green)}
+.stickybar a.web{background:#f7f4ee;color:var(--ink);font-weight:700}
 .stickybar b{font-size:13px}
 @media (max-width:360px){.stickybar b{font-size:12px}}
 @media (max-width:960px){.stickybar{display:grid}}
