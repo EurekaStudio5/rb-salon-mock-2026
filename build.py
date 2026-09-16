@@ -5,7 +5,7 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "22"
+VER = "23"
 GATE_PASS = "7575"  # 仮公開のパスワード（Shingo指示 2026-09-15）
 
 def gate_hash(pw):
@@ -46,6 +46,7 @@ NAV = [
     ("staff.html", "スタッフ", "Staff"),
     ("voice.html", "お客様の声", "Voice"),
     ("kitsuke.html", "着付け", "Kimono"),
+    ("news.html", "お知らせ", "News"),
     ("faq.html", "よくある質問", "FAQ"),
     ("access.html", "アクセス", "Access"),
 ]
@@ -519,6 +520,13 @@ def build_index():
   </div>
 </div>
 
+<section class="sec alt" style="padding:56px 0">
+  <div class="wrap">
+    <div class="newshead"><span class="en">News</span><h2>お知らせ</h2><a href="news.html">すべて見る →</a></div>
+    <div class="newsrow stagger">{news_cards(NEWS[:3])}</div>
+  </div>
+</section>
+
 <section class="sec">
   <div class="wrap">
     {sec_head("Concerns", "こんなお悩みありませんか？")}
@@ -750,6 +758,28 @@ def build_reserve():
 <script src="assets/booking.js?v={VER}" defer></script>'''
     return page("reserve.html", "WEB予約", "RE・BORN hair & relax のWEB予約。空き状況カレンダーからメニュー・スタイリスト・日時を選んで24時間ご予約いただけます。", body)
 
+NEWS = [
+    ("2026-09-10", "お知らせ", "店内を一部改装しました", "シャンプー台と個室を新しくしました。より落ち着いてお過ごしいただける空間になりましたので、ぜひご来店ください。", "img/room-new.jpg"),
+    ("2026-09-01", "メニュー", "韓国風フェザーパーマ、はじめました", "トレンドのフェザーパーマが新登場。メンズカット＋フェザーパーマ＋シェービング＋眉カットのセットでご案内しています。", "img/style-mens-perm-2.jpg"),
+    ("2026-01-12", "成人式", "2026年 成人式のヘアセット・着付け", "今年もたくさんの新成人の皆さまをお手伝いしました。ヘアセットと着付けの一部をご紹介します。", "img/kitsuke-12.jpg"),
+    ("2025-12-20", "お知らせ", "年末年始の営業について", "12月30日（火）〜1月3日（土）は休業とさせていただきます。年始は1月4日（日）より通常営業いたします。", ""),
+]
+
+def news_cards(items, h="h3"):
+    out = ""
+    for date, cat, title, body, img in items:
+        y, m, d = date.split("-")
+        fig = f'<figure class="rv-img"><img src="{img}" alt="" loading="lazy"></figure>' if img else ""
+        out += f'''<article class="news">{fig}<div class="body"><div class="nmeta"><time datetime="{date}">{y}.{m}.{d}</time><span class="cat">{esc(cat)}</span></div><{h}>{esc(title)}</{h}><p>{esc(body)}</p></div></article>'''
+    return out
+
+def build_news():
+    body = pagehead("News", "お知らせ", "新しいメニュー、改装のご報告、成人式のヘアセット事例、営業日のご案内などをお届けします。", "img/interior-2.jpg") + f'''
+<section class="sec"><div class="wrap"><div class="newslist">{news_cards(NEWS, "h2")}</div>
+<p class="small text-muted center mt40">※このページの記事は見本です。成人式やイベントごとに、その年のスタイルを追加していく「更新できるページ」の例としてご覧ください。</p></div></section>
+{ctaband()}'''
+    return page("news.html", "お知らせ", "RE・BORN hair & relax のお知らせ。新メニュー・改装・成人式のヘアセット事例・営業日のご案内。", body)
+
 def build_privacy():
     raw = open(os.path.join(BASE, "..", "素材", "privacy.txt"), encoding="utf-8").read().strip().splitlines()
     out = ""
@@ -765,7 +795,7 @@ def main():
     pages = {
         "index.html": build_index(), "menu.html": build_menu(), "staff.html": build_staff(), "voice.html": build_voice(),
         "access.html": build_access(), "faq.html": build_faq(), "kitsuke.html": build_kitsuke(), "reserve.html": build_reserve(), "privacy.html": build_privacy(),
-        "gate.html": build_gate(),
+        "gate.html": build_gate(), "news.html": build_news(),
     }
     for f, h in pages.items():
         with open(os.path.join(BASE, f), "w", encoding="utf-8", newline="\n") as fp:
