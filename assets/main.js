@@ -86,22 +86,57 @@
     });
     return Object.keys(lines).sort(function (a, b) { return a - b; }).map(function (k) { return lines[k].r - lines[k].l; });
   }
+  function restoreGlued(el) {  // つないだ区切り（<wbr>）を元の位置へ戻す。外した順の逆（pop）で戻す
+    if (!el._glued) return;
+    for (var g; (g = el._glued.pop()); ) g.parent.insertBefore(g.node, g.next);
+    el._glued = null;
+  }
+  function tailFits(el) {  // 最後の <wbr> から末尾までの文字が1行に収まっているか（収まらない＝語の途中で割れている）。テキストの矩形（1行ずつ）で判定
+    var wb = el.querySelectorAll('wbr'), start = wb.length ? wb[wb.length - 1] : null;
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n, rs = [];
+    while ((n = walker.nextNode())) {
+      if (start && !(start.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING)) continue;
+      if (!n.textContent.trim()) continue;
+      var r = document.createRange(); r.selectNodeContents(n);
+      Array.prototype.forEach.call(r.getClientRects(), function (x) { if (x.width > 0.5 && x.height > 0.5) rs.push(x); });
+    }
+    if (!rs.length) return true;
+    var top = rs[0].top, h = rs[0].height;
+    return rs.every(function (x) { return x.top < top + h * 0.6; });
+  }
+  var ORPHAN_SEL = 'p, li, dd, dt, td, summary, figcaption, h1, h2, h3, .lead, .sub, .hint, .meta span, .faq .a';
   function fixOrphans() {
-    var els = document.querySelectorAll('p, li, dd, dt, td, summary, figcaption, h1, h2, h3, .lead, .sub, .hint, .meta span, .faq .a');
+    var els = document.querySelectorAll(ORPHAN_SEL);
+    Array.prototype.forEach.call(els, restoreGlued);  // 先に全部戻してから判定（親子どちらも対象のときの干渉を防ぐ）
     Array.prototype.forEach.call(els, function (el) {
       if (el.closest('.btn, .marquee, .stickybar, table, .nav, .drawer, .intro')) return;
       if (el.getAttribute('data-orphan') === 'skip') return;
+      if (el.querySelector(ORPHAN_SEL)) return;  // 対象の子孫を持つ親は加工しない（子だけを直す）
       el.style.paddingRight = '';
       if ((el.textContent || '').trim().length < 8) return;
       var width = el.getBoundingClientRect().width;
       if (width < 80) return;
-      for (var pad = 0; pad <= 24; pad += 2) {
-        if (pad) el.style.paddingRight = pad + '%';
-        var ws = lineWidths(el);
-        if (ws.length < 2) break;
-        if (ws[ws.length - 1] >= width * 0.2) break;
-        if (pad === 24) el.style.paddingRight = '';
+      var ok = function () { var ws = lineWidths(el); return ws.length < 2 || ws[ws.length - 1] >= width * 0.2; };
+      if (ok()) return;
+      // 文節改行（<wbr>）の要素：最後の区切りを外して、短い最終行を前の文節とつなぐ（余白で幅を狭めると文節の途中で割れるため）。
+      // つないだ文節が1行に収まらない（＝語の途中で割れる）ならやめて元に戻す。孤立行の方が語の途中の改行よりまし
+      var wbrs = el.querySelectorAll('wbr');
+      if (wbrs.length) {
+        el._glued = [];
+        for (var k = wbrs.length - 1, n = 0; k >= 0 && n < 3; k--, n++) {
+          el._glued.push({ node: wbrs[k], parent: wbrs[k].parentNode, next: wbrs[k].nextSibling });
+          wbrs[k].remove();
+          if (!tailFits(el)) break;
+          if (ok()) return;
+        }
+        restoreGlued(el);
+        return;
       }
+      for (var pad = 2; pad <= 24; pad += 2) {
+        el.style.paddingRight = pad + '%';
+        if (ok()) return;
+      }
+      el.style.paddingRight = '';
     });
   }
   var orphanTimer;

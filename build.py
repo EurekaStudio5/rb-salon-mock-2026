@@ -3,10 +3,164 @@
 実行: python build.py  → 同フォルダに index.html ほか各ページを出力
 文言は現行サイト（re-born2005.com）を基本に逐語保持し、構成・導線・デザインを刷新。
 """
-import os, json, html
+import os, json, html, re
+import budoux  # pip install budoux（日本語の文節区切り・Google製）
 BASE = os.path.dirname(os.path.abspath(__file__))
 VER = "24"
 GATE_PASS = "7575"  # 仮公開のパスワード（Shingo指示 2026-09-15）
+
+# ---- 文節で改行する（Shingo「スマホで開いたときに絶対改行は綺麗に」） ----
+# 文字を含む要素のテキストに <wbr> を入れ、CSS の word-break:keep-all で「そこでしか改行しない」ようにする（語の途中で割れない）。
+# HTMLパーサーで文字の部分だけを処理する（属性値・script・style・コメントには触れない）。
+from html.parser import HTMLParser
+import importlib.metadata as _md
+_BUDOUX = budoux.load_default_japanese_parser()
+if _md.version("budoux") != "0.9.3":   # 区切り方は版で変わる。0.9.3 で全ページを計測済み（requirements.txt で固定）
+    raise SystemExit("budoux " + _md.version("budoux") + " は未検証です。pip install budoux==0.9.3 で入れ直すか、改行の計測をやり直してから版を更新すること")
+_WJ = "\u2060"  # WORD JOINER：この位置では改行させない
+_NO_SPLIT = ("当てはま", "おばあちゃん", "どうぞ", "もうひとつ", "みさとさん")   # BudouX が語の途中で切ってしまう語（見つけたら足す）
+_KAN = r"[\u4E00-\u9FFF々]"
+_BUDOUX_FINE = budoux.load_default_japanese_parser()   # 長い文節を細かくする2回目用（区切りの基準を少し下げる）
+if not hasattr(_BUDOUX_FINE, "_base_score"):
+    raise SystemExit("budoux の内部属性 _base_score が見つかりません（版が変わった）。長い文節の2回目解析を見直すこと")
+_BUDOUX_FINE._base_score += 500   # +500 で「毛先まで｜なめらかな」。+1000 だと「させていた｜だきます」と割れ始める
+
+def _phrases(text):
+    raw = []
+    for ph in _BUDOUX.parse(text):
+        raw.extend(_BUDOUX_FINE.parse(ph) if len(ph) >= 8 else [ph])
+    # 除外語の内側にある区切りは消す
+    cuts, pos = [], 0
+    for ph in raw[:-1]:
+        pos += len(ph); cuts.append(pos)
+    for w in _NO_SPLIT:
+        for m in re.finditer(re.escape(w), text):
+            cuts = [c for c in cuts if not (m.start() < c < m.end())]
+    raw, prev = [], 0
+    for c in cuts + [len(text)]:
+        raw.append(text[prev:c]); prev = c
+    merged = []
+    for ph in raw:
+        if merged and (
+            (re.fullmatch(r"[\u30A1-\u30FC]{1,2}", merged[-1]) and re.match(r"[\u3041-\u309F]", ph))   # 「パサ｜つきが」→ 短いカタカナ片は後ろとつなぐ
+            or (re.search(_KAN + "$", merged[-1]) and re.match(_KAN, ph))                                # 「空｜気」「笑｜顔」→ 漢字の途中では切らない
+            or ph[:1] in "／＆"                                                                           # 「／」「＆」を行頭に送らない
+        ):
+            merged[-1] += ph
+        else:
+            merged.append(ph)
+    out = []
+    for ph in merged:
+        ph = re.sub(r"([／/：・])(?=\S)", lambda m: m.group(1) + "\x00", ph)                       # 区切り記号の後
+        ph = re.sub(r"(?<=[\u3041-\u309F\u4E00-\u9FFF々])(?=[\u30A1-\u30FA])", "\x00", ph)          # 漢字・ひらがな→カタカナ語の前
+        ph = re.sub(r"(?<=[\u30A1-\u30FC])(?=(?:トリートメント|エステ|サロン|ポリシー|メンズ|ヘア))", "\x00", ph)  # カタカナ複合語の継ぎ目（ヘッドスパは割らない）
+        ph = re.sub(r"(?<=[\u30A1-\u30FC])(?=[0-9０-９])", "\x00", ph)                                  # 「ヘアスタイル｜1週間保証」
+        if re.search(r"[都道府県].*[市区郡町村]", ph):                                                 # 住所：群馬県｜高崎市｜聖石町13-1
+            ph = re.sub(r"(?<=[都道府県市区郡])(?=[\u4E00-\u9FFF])", "\x00", ph)
+        out.extend(p for p in ph.split("\x00") if p)
+    return out
+
+def _wbr_text(t):
+    """t は実体参照を解いた文字列。HTMLとして書き出せる形（エスケープ済み・<wbr>入り）で返す"""
+    if not t.strip():
+        return html.escape(t, quote=False)
+    parts = _phrases(t)
+    assert "".join(parts) == t, t
+    parts = [re.sub(r"(?<=[^\s\u2060])([／＆])", _WJ + r"\1", p) for p in parts]   # 「／」「＆」の直前でブラウザが改行しないように
+    parts = [re.sub(r"(?<=\d)-(?=\d)", "-" + _WJ, p) for p in parts]      # 「13-1」「0800-800-8835」を途中で切らない
+    return "<wbr>".join(html.escape(p, quote=False) for p in parts)
+
+_TARGET_TAGS = {"h1", "h2", "h3", "h4", "summary", "figcaption", "td", "th", "dt", "dd", "li", "p"}
+_TARGET_DIV = {"a", "notice", "note", "meta", "hours", "who", "copy", "cell", "safe"}
+_NOWRAP_CLS = {"ja", "btn", "role", "eyebrow", "marquee", "stickybar"}   # CSS で1行固定の要素（Chrome は nowrap の中でも <wbr> で改行するので入れない）
+_SKIP_TAGS = {"script", "style", "svg", "title", "textarea"}
+_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
+
+class _PhraseWrap(HTMLParser):
+    """テキストノードだけに <wbr> を入れる。処理対象の本文では、既にある <wbr>・U+2060 を外して文字をまとめてから区切り直す（何度かけても同じ結果）"""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.out, self.stack, self.buf = [], [], []   # stack: (tag, target, skip, nowrap, classes)
+
+    def _flags(self):
+        return (any(x[1] for x in self.stack), any(x[2] for x in self.stack), any(x[3] for x in self.stack))
+
+    def _processing(self):
+        target, skip, nowrap = self._flags()
+        return target and not skip and not nowrap
+
+    def _flush(self):
+        if not self.buf:
+            return
+        text = "".join(self.buf); self.buf = []
+        self.out.append(_wbr_text(text.replace(_WJ, "")) if self._processing() else html.escape(text, quote=False))
+
+    def handle_decl(self, decl):
+        self._flush(); self.out.append(f"<!{decl}>")
+
+    def handle_comment(self, data):
+        self._flush(); self.out.append(f"<!--{data}-->")
+
+    def unknown_decl(self, data):   # <![CDATA[...]]> など（data は "CDATA[中身" の形で来る）
+        self._flush()
+        close = "]]>" if data.split("[", 1)[0].lower() in ("cdata", "temp", "ignore", "include", "rcdata") else "]>"
+        self.out.append(f"<![{data}{close}")
+
+    def handle_pi(self, data):
+        self._flush(); self.out.append(f"<?{data}>")
+
+    def handle_startendtag(self, tag, attrs):
+        if tag == "wbr" and self._processing():
+            return                      # 既存の <wbr/> は外して区切り直す
+        self._flush(); self.out.append(self.get_starttag_text())
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "wbr" and self._processing():
+            return                      # 既存の <wbr> は外して区切り直す（文字は前後をまとめて処理）
+        self._flush()
+        raw = self.get_starttag_text()
+        ad = dict(attrs)
+        cls = set((ad.get("class") or "").split())
+        inline_nowrap = bool(re.search(r"(?:^|;)\s*white-space\s*:\s*nowrap\b", ad.get("style") or "", re.I))
+        if tag == "small" and self._processing():
+            if not (self.out and self.out[-1] == "<wbr>"):
+                self.out.append("<wbr>")   # 名前・見出しと英字表記の間で改行できるように
+        self.out.append(raw)
+        if tag in _VOID:
+            return
+        in_price = any("pricegroup" in x[4] for x in self.stack)
+        self.stack.append((tag,
+                           tag in _TARGET_TAGS or (tag == "div" and bool(cls & _TARGET_DIV)),
+                           tag in _SKIP_TAGS,
+                           bool(cls & _NOWRAP_CLS) or inline_nowrap or (tag == "b" and in_price),
+                           cls))
+
+    def handle_endtag(self, tag):
+        self._flush()
+        self.out.append(f"</{tag}>")
+        for k in range(len(self.stack) - 1, -1, -1):
+            if self.stack[k][0] == tag:
+                del self.stack[k:]
+                break
+
+    def handle_data(self, data):
+        target, skip, nowrap = self._flags()
+        if skip:
+            self._flush()
+            # script / style は原文のまま（実体参照も解かれていない）。title などは解かれているのでエスケープし直す
+            self.out.append(data if getattr(self, "cdata_elem", None) else html.escape(data, quote=False))
+        else:
+            self.buf.append(data)
+
+    def close(self):
+        super().close()
+        self._flush()
+
+def phrase_wrap(page_html):
+    w = _PhraseWrap()
+    w.feed(page_html)
+    w.close()
+    return "".join(w.out)
 
 def gate_hash(pw):
     # 軽量ハッシュ（gate.html の JS と同じ計算式）: 平文をHTMLに置かないためのもの。暗号強度は求めていない
@@ -256,7 +410,7 @@ def footer(fname=""):
         <a class="brand" href="index.html"><img src="img/logo.png" alt="RE・BORN hair &amp; relax" width="320" height="72"></a>
         <p>〒{SHOP['zip']} {SHOP['addr']}</p>
         <p>TEL <a href="{SHOP['tel_href']}">{SHOP['tel']}</a></p>
-        <p>営業時間 {SHOP['hours']}（最終受付 {SHOP['last']}）</p>
+        <p>営業時間 {SHOP['hours']}<br>最終受付 {SHOP['last']}</p>
         <p>定休日 {SHOP['closed']}　／　駐車場 10台</p>
         <div class="sns">
           <a href="{SHOP['ig']}" target="_blank" rel="noopener" aria-label="Instagram">{ICON['ig']}</a>
@@ -328,7 +482,7 @@ def build_gate():
   <form class="box" id="gate">
     <img src="img/logo.png" alt="RE・BORN hair &amp; relax">
     <h1>新しいホームページ案（非公開プレビュー）</h1>
-    <p>「新しいホームページはこんな雰囲気・こんな機能にできます」というデザインの見本です。写真・文言・メニューはすべて差し替え可能で、この内容で公開するものではありません。<br>ご確認用のパスワードを入力してください。</p>
+    <p>新しいホームページのデザインの見本です。<br>ご確認用のパスワードを入力してください。</p>
     <input type="password" name="pw" inputmode="numeric" autocomplete="off" autofocus aria-label="パスワード">
     <button type="submit" class="btn btn-primary">開く</button>
     <p class="err" id="gate-err" aria-live="polite"></p>
@@ -338,7 +492,7 @@ def build_gate():
         <li>このURLとパスワードの両方を知っている方だけが閲覧できます。</li>
         <li>Google などの検索エンジンに登録されない設定（noindex）にしており、検索しても出てきません。</li>
         <li>現在のホームページ（<span style="white-space:nowrap">re-born2005.com</span>）には一切影響ありません。そのまま通常どおり表示されています。</li>
-        <li>ご確認が終わりましたら、このプレビューは削除します。写真・文言の差し替えはご要望に合わせて何度でも調整できます。</li>
+        <li>ご確認が終わりましたら、このプレビューは削除します。</li>
       </ul>
       <b style="margin-top:14px">この見本の作り方</b>
       <ul>
@@ -360,7 +514,14 @@ def build_gate():
   if(has()){{location.replace(next);return;}}
   /* 孤立行（行末に1〜3文字だけ残る改行）を防ぐ：main.js の fixOrphans と同じ方式（ゲートは main.js を読まないため） */
   function lw(el){{var r=document.createRange();r.selectNodeContents(el);var L=[];Array.prototype.slice.call(r.getClientRects()).filter(function(x){{return x.width>0.5&&x.height>0.5;}}).sort(function(a,b){{return a.top-b.top;}}).forEach(function(x){{var c=L[L.length-1];if(c&&x.top<c.b-2){{c.l=Math.min(c.l,x.left);c.r=Math.max(c.r,x.right);c.b=Math.max(c.b,x.bottom);}}else L.push({{l:x.left,r:x.right,b:x.bottom}});}});return L.map(function(c){{return c.r-c.l;}});}}
-  function fixOrphans(){{Array.prototype.forEach.call(document.querySelectorAll(".gate li,.gate p"),function(el){{el.style.paddingRight="";var w=el.getBoundingClientRect().width;if(w<80)return;for(var p=0;p<=24;p+=2){{if(p)el.style.paddingRight=p+"%";var ws=lw(el);if(ws.length<2||ws[ws.length-1]>=w*0.2)return;}}el.style.paddingRight="";}});}}
+  function restore(el){{if(el._glued){{for(var g;(g=el._glued.pop());)g.parent.insertBefore(g.node,g.next);el._glued=null;}}}}
+  function tailFits(el){{var wb=el.querySelectorAll("wbr"),st=wb.length?wb[wb.length-1]:null,tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),n,rs=[];while((n=tw.nextNode())){{if(st&&!(st.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING))continue;if(!n.textContent.trim())continue;var r=document.createRange();r.selectNodeContents(n);Array.prototype.forEach.call(r.getClientRects(),function(x){{if(x.width>0.5&&x.height>0.5)rs.push(x);}});}}if(!rs.length)return true;var t=rs[0].top,h=rs[0].height;return rs.every(function(x){{return x.top<t+h*0.6;}});}}
+  function fixOrphans(){{var SEL=".gate li,.gate p",els=document.querySelectorAll(SEL);Array.prototype.forEach.call(els,restore);Array.prototype.forEach.call(els,function(el){{
+    if(el.querySelector(SEL))return;el.style.paddingRight="";var w=el.getBoundingClientRect().width;if(w<80)return;
+    var ok=function(){{var ws=lw(el);return ws.length<2||ws[ws.length-1]>=w*0.2;}};if(ok())return;
+    var wb=el.querySelectorAll("wbr");
+    if(wb.length){{el._glued=[];for(var k=wb.length-1,n=0;k>=0&&n<3;k--,n++){{el._glued.push({{node:wb[k],parent:wb[k].parentNode,next:wb[k].nextSibling}});wb[k].remove();if(!tailFits(el))break;if(ok())return;}}restore(el);return;}}
+    for(var p=2;p<=24;p+=2){{el.style.paddingRight=p+"%";if(ok())return;}}el.style.paddingRight="";}});}}
   var ot;function sched(){{clearTimeout(ot);ot=setTimeout(fixOrphans,120);}}
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sched);else sched();
   addEventListener("resize",sched);
@@ -638,7 +799,7 @@ def build_menu():
     for ja, en, items, note in PRICES:
         gid = "g-" + en.lower().replace(" ", "-").replace("'", "").replace("/", "")
         lis = "".join(f'<li><span>{esc(n)}{("<small>"+esc(s)+"</small>") if s else ""}</span><b>¥{yen(p)}</b></li>' for n, s, p in items)
-        groups += f'<div class="pricegroup rv" id="{gid}"><h3>{esc(ja)}<small>{en}</small></h3><ul>{lis}</ul>{("<p class=note>※"+esc(note)+"</p>") if note else ""}</div>'
+        groups += f'<div class="pricegroup rv" id="{gid}"><h3><span class="ja">{esc(ja)}</span><small>{en}</small></h3><ul>{lis}</ul>{("<p class=note>※"+esc(note)+"</p>") if note else ""}</div>'
     jump = '<div class="jump">' + "".join(f'<a href="#{ "g-" + en.lower().replace(" ", "-").replace(chr(39), "").replace("/", "") }">{esc(ja)}</a>' for ja, en, items, note in PRICES) + '<a href="#recommend">初回限定</a></div>'
     body = pagehead("Menu &amp; Price", "メニュー・料金", "初めての方は「おすすめメニュー」の初回限定価格（税込）をご利用ください。" + jump, "img/products.jpg") + f'''
 <section class="sec" id="recommend">
@@ -788,7 +949,7 @@ def main():
     }
     for f, h in pages.items():
         with open(os.path.join(BASE, f), "w", encoding="utf-8", newline="\n") as fp:
-            fp.write(h)
+            fp.write(phrase_wrap(h))
         print("wrote", f, len(h))
 
 if __name__ == "__main__":

@@ -19,6 +19,9 @@ a{color:inherit;text-decoration:none}
 h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.4;margin:0;text-wrap:balance;overflow-wrap:anywhere}
 p,li,dd,dt,figcaption,td,th,small,.lead,.sub,.hint,.note{text-wrap:pretty;overflow-wrap:anywhere;line-break:strict}
 p{margin:0 0 1em}
+/* 文節改行（build.py の phrase_wrap が <wbr> を入れた要素）：語の途中で改行しない。1行に入りきらない語だけ折り返す */
+h1,h2,h3,h4,summary,figcaption,td,th,dt,dd,li,p,.faq .a,.notice,.note,.meta,.hours,.who,.copy,.cell,.safe{word-break:keep-all;overflow-wrap:anywhere}
+.gate .err{word-break:normal}  /* JSで後から入る文言（<wbr>なし） */
 ul{margin:0;padding:0;list-style:none}
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
 .sr{position:absolute;left:-9999px}
@@ -294,6 +297,7 @@ html{scroll-padding-bottom:110px}
 /* price tables */
 .pricegrid{display:grid;grid-template-columns:1fr 1fr;gap:40px 56px}
 .pricegroup h3{font-size:22px;letter-spacing:.06em;padding-bottom:10px;border-bottom:2px solid var(--ink);margin-bottom:6px;display:block;white-space:nowrap}
+.pricegroup h3 .ja{white-space:nowrap}
 .pricegroup h3 small{margin-left:10px}
 .pricegroup h3 small{font-family:var(--latin);font-style:italic;font-size:13px;color:var(--gold-d);letter-spacing:.2em;font-weight:500}
 .pricegroup li{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px dashed var(--line);font-size:15px;align-items:baseline}
