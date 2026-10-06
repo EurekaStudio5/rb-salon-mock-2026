@@ -6,7 +6,7 @@
 import os, json, html, re
 import budoux  # pip install budoux（日本語の文節区切り・Google製）
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "24"
+VER = "25"
 GATE_PASS = "7575"  # 仮公開のパスワード（Shingo指示 2026-09-15）
 
 # ---- 文節で改行する（Shingo「スマホで開いたときに絶対改行は綺麗に」） ----
