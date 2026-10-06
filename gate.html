@@ -6,7 +6,7 @@
 <title>閲覧用パスワード｜RE・BORN hair & relax（サイト案）</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="img/logo-s.png">
-<link rel="stylesheet" href="assets/style.css?v=23">
+<link rel="stylesheet" href="assets/style.css?v=24">
 <style>.gate{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}.gate .box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 28px;max-width:420px;width:100%}.gate img{height:34px;margin:0 auto 18px}.gate h1{font-size:20px;text-align:center;margin-bottom:6px}.gate p{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}.gate input{width:100%;font:inherit;font-size:18px;letter-spacing:.2em;text-align:center;padding:12px 14px;border:1px solid #cfc8b9;border-radius:10px;background:#fbfaf7}.gate .btn{width:100%;margin-top:12px}.gate .err{color:#c0392b;font-size:13px;text-align:center;margin:10px 0 0;min-height:1.5em}.gate .safe{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line);font-size:12.5px;color:#3d3a34;line-height:1.7}.gate .safe b{display:block;color:var(--green);font-size:13px;margin-bottom:6px}.gate .safe ul{padding-left:18px;list-style:disc;margin:0}.gate .safe li{margin-bottom:4px}</style>
 </head>
 <body>
@@ -23,14 +23,14 @@
       <ul>
         <li>このURLとパスワードの両方を知っている方だけが閲覧できます。</li>
         <li>Google などの検索エンジンに登録されない設定（noindex）にしており、検索しても出てきません。</li>
-        <li>現在のホームページ（re-born2005.com）には一切影響ありません。そのまま通常どおり表示されています。</li>
+        <li>現在のホームページ（<span style="white-space:nowrap">re-born2005.com</span>）には一切影響ありません。そのまま通常どおり表示されています。</li>
         <li>ご確認が終わりましたら、このプレビューは削除します。写真・文言の差し替えはご要望に合わせて何度でも調整できます。</li>
       </ul>
       <b style="margin-top:14px">この見本の作り方</b>
       <ul>
-        <li>現在のホームページ（re-born2005.com）とホットペッパービューティーの掲載内容・写真をもとに構成しています。Instagram（@reborn84）はリンク先として掲載しています。</li>
+        <li>現在のホームページ（<span style="white-space:nowrap">re-born2005.com</span>）とホットペッパービューティーの掲載内容・写真をもとに構成しています。Instagram（@reborn84）はリンク先として掲載しています。</li>
         <li>営業時間・料金・スタッフ紹介は上記からの転記です。メンズ・理容メニューの価格はホットペッパー掲載のクーポン価格を載せています（要確認）。</li>
-        <li>「WEB予約」ページのカレンダーの空き状況はデモ用のダミーです。実際の予約は現在どおりお電話・LINE・ホットペッパーで承ります。</li>
+        <li>ご予約の案内は、現在のホームページと同じくLINE公式アカウントとお電話を中心にしています。</li>
       </ul>
     </div>
   </form>
@@ -44,6 +44,12 @@
   if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#[a-z0-9_-]*)?$/i.test(next))next="index.html";
   function has(){try{if(localStorage.getItem("rb_gate")===EXPECT)return true;}catch(e){}try{if(sessionStorage.getItem("rb_gate")===EXPECT)return true;}catch(e){}return false;}
   if(has()){location.replace(next);return;}
+  /* 孤立行（行末に1〜3文字だけ残る改行）を防ぐ：main.js の fixOrphans と同じ方式（ゲートは main.js を読まないため） */
+  function lw(el){var r=document.createRange();r.selectNodeContents(el);var L=[];Array.prototype.slice.call(r.getClientRects()).filter(function(x){return x.width>0.5&&x.height>0.5;}).sort(function(a,b){return a.top-b.top;}).forEach(function(x){var c=L[L.length-1];if(c&&x.top<c.b-2){c.l=Math.min(c.l,x.left);c.r=Math.max(c.r,x.right);c.b=Math.max(c.b,x.bottom);}else L.push({l:x.left,r:x.right,b:x.bottom});});return L.map(function(c){return c.r-c.l;});}
+  function fixOrphans(){Array.prototype.forEach.call(document.querySelectorAll(".gate li,.gate p"),function(el){el.style.paddingRight="";var w=el.getBoundingClientRect().width;if(w<80)return;for(var p=0;p<=24;p+=2){if(p)el.style.paddingRight=p+"%";var ws=lw(el);if(ws.length<2||ws[ws.length-1]>=w*0.2)return;}el.style.paddingRight="";});}
+  var ot;function sched(){clearTimeout(ot);ot=setTimeout(fixOrphans,120);}
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sched);else sched();
+  addEventListener("resize",sched);
   if(location.protocol==="file:"){err.textContent="ローカルファイルとして開いています。ブラウザによってはパスワードの保存が効かないため、公開URLからご覧ください。";}
   f.addEventListener("submit",function(ev){ev.preventDefault();var pw=f.pw.value.trim();
     if(hash(pw)!==EXPECT){err.textContent="パスワードが違います。";f.pw.select();return;}

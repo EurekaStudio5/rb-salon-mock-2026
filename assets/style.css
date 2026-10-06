@@ -273,6 +273,7 @@ html{scroll-padding-bottom:110px}
 /* mobile sticky bar */
 .stickybar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;grid-template-columns:1fr 1fr 1.3fr;background:rgba(22,21,20,.96);backdrop-filter:blur(8px);padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:8px}
 .stickybar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#fff;font-size:12px;letter-spacing:.02em;padding:8px 4px;border-radius:10px;background:rgba(255,255,255,.08);min-height:52px;white-space:nowrap}
+.stickybar.two{grid-template-columns:1fr 1fr}
 .stickybar a svg{width:20px;height:20px}
 .stickybar a.line{background:var(--line-brand)}
 .stickybar a.web{background:#f7f4ee;color:var(--ink);font-weight:700}

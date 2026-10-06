@@ -5,7 +5,7 @@
 """
 import os, json, html
 BASE = os.path.dirname(os.path.abspath(__file__))
-VER = "23"
+VER = "24"
 GATE_PASS = "7575"  # 仮公開のパスワード（Shingo指示 2026-09-15）
 
 def gate_hash(pw):
@@ -205,15 +205,15 @@ def header(active):
 <header class="header">
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="RE・BORN hair & relax ホーム"><img src="img/logo.png" alt="RE・BORN hair &amp; relax" width="320" height="72"><small>Takasaki</small></a>
-    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}WEB予約</a></nav>
+    <nav class="nav" aria-label="メインメニュー">{links}<a class="btn btn-primary btn-sm" href="reserve.html">{ICON['cal']}ご予約</a></nav>
     <button class="burger" aria-label="メニューを開く" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
   </div>
 </header>
 <div class="drawer" id="drawer" inert>
   {drawer}
-  <a href="reserve.html">WEB予約<small>Reservation</small></a>
+  <a href="reserve.html">ご予約<small>Reservation</small></a>
   <div class="cta">
-    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a>
+    <a class="btn btn-primary" href="reserve.html">{ICON['cal']}ご予約はこちら</a>
     <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     <a class="btn btn-tel" href="{SHOP['tel_href']}">{ICON['tel']}{SHOP['tel']}</a>
   </div>
@@ -234,9 +234,9 @@ def ctaband():
   <img class="plx" src="img/interior-2.jpg" alt="" loading="lazy">
   <div class="wrap">
     <h2>ご予約・ご相談はお気軽に</h2>
-    <p>空き状況カレンダーからのWEB予約・LINE・お電話からご予約いただけます。初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
+    <p>ご予約は、LINE公式アカウントまたはお電話で承ります。初めての方も、髪のお悩み相談だけでも大歓迎です。</p>
     <div class="cta">
-      <a class="btn btn-white" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a>
+      <a class="btn btn-white" href="reserve.html">{ICON['cal']}ご予約はこちら</a>
       <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
     </div>
     <a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a>
@@ -246,6 +246,8 @@ def ctaband():
 
 def footer(fname=""):
     links = "".join('<li><a href="%s">%s</a></li>' % (h, esc(ja)) for h, ja, en in NAV)
+    on_resv = fname == "reserve.html"
+    web = "" if on_resv else f'\n  <a class="web" href="reserve.html">{ICON["cal"]}<b>ご予約</b></a>'
     return f'''
 <footer class="footer">
   <div class="wrap">
@@ -264,7 +266,7 @@ def footer(fname=""):
       </div>
       <div>
         <h4>Menu</h4>
-        <ul>{links}<li><a href="reserve.html">WEB予約</a></li></ul>
+        <ul>{links}<li><a href="reserve.html">ご予約</a></li></ul>
       </div>
       <div>
         <h4>Links</h4>
@@ -279,10 +281,9 @@ def footer(fname=""):
     <div class="copy"><span>© RE・BORN hair &amp; relax</span><span>高崎に4代続く創業90年の理美容室</span></div>
   </div>
 </footer>
-<nav class="stickybar" aria-label="予約・お問い合わせ">
+<nav class="stickybar{' two' if on_resv else ''}" aria-label="予約・お問い合わせ">
   <a href="{SHOP['tel_href']}">{ICON['tel']}<b>電話する</b></a>
-  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINE予約</b></a>
-  <a class="web" href="{"#resv-form" if fname == "reserve.html" else "reserve.html"}">{ICON['cal']}<b>{"予約に戻る" if fname == "reserve.html" else "WEB予約"}</b></a>
+  <a class="line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}<b>LINE予約</b></a>{web}
 </nav>'''
 
 def jsonld():
@@ -336,14 +337,14 @@ def build_gate():
       <ul>
         <li>このURLとパスワードの両方を知っている方だけが閲覧できます。</li>
         <li>Google などの検索エンジンに登録されない設定（noindex）にしており、検索しても出てきません。</li>
-        <li>現在のホームページ（re-born2005.com）には一切影響ありません。そのまま通常どおり表示されています。</li>
+        <li>現在のホームページ（<span style="white-space:nowrap">re-born2005.com</span>）には一切影響ありません。そのまま通常どおり表示されています。</li>
         <li>ご確認が終わりましたら、このプレビューは削除します。写真・文言の差し替えはご要望に合わせて何度でも調整できます。</li>
       </ul>
       <b style="margin-top:14px">この見本の作り方</b>
       <ul>
-        <li>現在のホームページ（re-born2005.com）とホットペッパービューティーの掲載内容・写真をもとに構成しています。Instagram（@reborn84）はリンク先として掲載しています。</li>
+        <li>現在のホームページ（<span style="white-space:nowrap">re-born2005.com</span>）とホットペッパービューティーの掲載内容・写真をもとに構成しています。Instagram（@reborn84）はリンク先として掲載しています。</li>
         <li>営業時間・料金・スタッフ紹介は上記からの転記です。メンズ・理容メニューの価格はホットペッパー掲載のクーポン価格を載せています（要確認）。</li>
-        <li>「WEB予約」ページのカレンダーの空き状況はデモ用のダミーです。実際の予約は現在どおりお電話・LINE・ホットペッパーで承ります。</li>
+        <li>ご予約の案内は、現在のホームページと同じくLINE公式アカウントとお電話を中心にしています。</li>
       </ul>
     </div>
   </form>
@@ -357,6 +358,12 @@ def build_gate():
   if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#[a-z0-9_-]*)?$/i.test(next))next="index.html";
   function has(){{try{{if(localStorage.getItem("rb_gate")===EXPECT)return true;}}catch(e){{}}try{{if(sessionStorage.getItem("rb_gate")===EXPECT)return true;}}catch(e){{}}return false;}}
   if(has()){{location.replace(next);return;}}
+  /* 孤立行（行末に1〜3文字だけ残る改行）を防ぐ：main.js の fixOrphans と同じ方式（ゲートは main.js を読まないため） */
+  function lw(el){{var r=document.createRange();r.selectNodeContents(el);var L=[];Array.prototype.slice.call(r.getClientRects()).filter(function(x){{return x.width>0.5&&x.height>0.5;}}).sort(function(a,b){{return a.top-b.top;}}).forEach(function(x){{var c=L[L.length-1];if(c&&x.top<c.b-2){{c.l=Math.min(c.l,x.left);c.r=Math.max(c.r,x.right);c.b=Math.max(c.b,x.bottom);}}else L.push({{l:x.left,r:x.right,b:x.bottom}});}});return L.map(function(c){{return c.r-c.l;}});}}
+  function fixOrphans(){{Array.prototype.forEach.call(document.querySelectorAll(".gate li,.gate p"),function(el){{el.style.paddingRight="";var w=el.getBoundingClientRect().width;if(w<80)return;for(var p=0;p<=24;p+=2){{if(p)el.style.paddingRight=p+"%";var ws=lw(el);if(ws.length<2||ws[ws.length-1]>=w*0.2)return;}}el.style.paddingRight="";}});}}
+  var ot;function sched(){{clearTimeout(ot);ot=setTimeout(fixOrphans,120);}}
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sched);else sched();
+  addEventListener("resize",sched);
   if(location.protocol==="file:"){{err.textContent="ローカルファイルとして開いています。ブラウザによってはパスワードの保存が効かないため、公開URLからご覧ください。";}}
   f.addEventListener("submit",function(ev){{ev.preventDefault();var pw=f.pw.value.trim();
     if(hash(pw)!==EXPECT){{err.textContent="パスワードが違います。";f.pw.select();return;}}
@@ -428,7 +435,7 @@ def menu_card(m):
     <div class="price"><s>通常 {yen(m['normal'])}円</s><b>¥{yen(m['first'])}</b><em>初回限定</em></div>
     <p>{esc(m['desc'])}</p>
     <div class="meta"><span>⏱ {esc(m['time'])}</span><span>含：{esc(m['inc'])}</span></div>
-    <a class="go" href="reserve.html">空き状況を見て予約する →</a>
+    <a class="go" href="reserve.html">ご予約はこちら →</a>
   </div>
 </article>'''
 
@@ -502,7 +509,7 @@ def build_index():
     <p class="lead">高崎市聖石町の髪質改善が得意なリラックスサロン。高い天井と個室のある居心地のよい空間で、お子様からシニアの方、メンズまで、家族みんなの「きれい」と「かっこいい」をお手伝いします。</p>
     <ul class="badges">{badges}</ul>
     <div class="cta">
-      <a class="btn btn-primary" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a>
+      <a class="btn btn-primary" href="reserve.html">{ICON['cal']}ご予約はこちら</a>
       <a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener">{ICON['line']}LINEで相談・予約</a>
       <a class="btn btn-white" href="{SHOP['tel_href']}">{ICON['tel']}{SHOP['tel']}</a>
     </div>
@@ -623,7 +630,7 @@ def build_index():
 </section>
 {ctaband()}'''
     return page("index.html", "RE・BORN hair & relax｜高崎市聖石町の髪質改善が得意な美容室・理容室",
-                "群馬県高崎市聖石町の理美容室 RE・BORN hair & relax（リボーン）。創業90年・三世代で通える個室完備のリラックスサロン。髪質改善・ヘッドスパ・メンズカット・着付け。当日予約OK・駐車場10台。WEB予約・LINE予約に対応。", body)
+                "群馬県高崎市聖石町の理美容室 RE・BORN hair & relax（リボーン）。創業90年・三世代で通える個室完備のリラックスサロン。髪質改善・ヘッドスパ・メンズカット・着付け。当日予約OK・駐車場10台。LINE・お電話でご予約いただけます。", body)
 
 def build_menu():
     cards = "".join(menu_card(m) for m in RECOMMEND)
@@ -648,7 +655,7 @@ def build_menu():
     {sec_head("Price List", "通常メニュー")}
     <div class="pricegrid">{groups}</div>
     <div class="notice rv">指名料はいただいておりません。早朝のご予約は別途料金にて承ります（前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください）。</div>
-    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}空き状況を見て予約する</a></div>
+    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}ご予約はこちら</a></div>
   </div>
 </section>
 {ctaband()}'''
@@ -678,7 +685,7 @@ def build_staff():
     body = pagehead("Staff", "スタッフ紹介", "世代を超えた女性スタッフと理容師免許を持つオーナー。カウンセリングから仕上げまで、最後まで同じスタイリストが担当します。", "img/staff-group.jpg") + f'''
 <section class="sec">
   <div class="wrap">{profs}
-    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}指名して予約する</a></div>
+    <div class="more"><a class="btn btn-primary" href="reserve.html">{ICON['cal']}ご予約はこちら</a></div>
   </div>
 </section>
 {ctaband()}'''
@@ -722,41 +729,23 @@ def build_kitsuke():
     return page("kitsuke.html", "着付け（成人式・卒業式）", "RE・BORN hair & relax の着付け・ヘアセット事例ギャラリー。成人式・卒業式の着付けは個室で。着付け技能免許保有スタイリストが担当。", body)
 
 def build_reserve():
-    import json as _json
-    menus = []
-    for i, m in enumerate(RECOMMEND):
-        mins = {"3〜3.5時間": 210, "2.5〜3時間": 180, "2〜2.5時間": 150, "2時間": 120, "1〜1.5時間": 90}[m["time"]]
-        menus.append(dict(id=f"r{i}", group="初回限定（初めての方）", name=m["name"], price=m["first"], minutes=mins, first=True, cutOnly=False))
-    regular = [("カット", 5700, 60, True), ("カット＋カラー", 13700, 120, False), ("カット＋艶めきハリコシカラー", 14700, 130, False), ("カット＋パーマ", 17700, 150, False),
-               ("カット＋ストレートパーマ", 23700, 180, False), ("カット＋ヘッドスパ（30分）", 10700, 100, False), ("ヘッドスパ（45分）", 7500, 45, False), ("レディースシェービング", 4400, 40, False)]
-    for i, (n, pr, mn, c) in enumerate(regular):
-        menus.append(dict(id=f"g{i}", group="通常メニュー", name=n, price=pr, minutes=mn, first=False, cutOnly=c))
-    mens = [("メンズカット＋シェービング＋眉毛カット", 5400, 60, True), ("カット＋フェザーパーマ（韓国風）＋シェービング", 12000, 150, False), ("カット＋スパイラル系パーマ＋シェービング", 12000, 150, False),
-            ("メンズカット＋アイロンパーマ＋シェービング", 11000, 140, False), ("メンズカット＋カラー", 11400, 120, False)]
-    for i, (n, pr, mn, c) in enumerate(mens):
-        menus.append(dict(id=f"m{i}", group="メンズ・理容メニュー", name=n, price=pr, minutes=mn, first=False, cutOnly=c))
-    stylists = [dict(id="any", name="指名なし", role="最も早い空きをご案内", img="")]
-    for st in STAFF:
-        if st["role"] in ("カインズパースン", "アシスタント"): continue
-        stylists.append(dict(id=st["en"].split()[1].lower(), name=st["name"], role=st["role"], img=st["img"]))
-    data = _json.dumps(dict(menus=menus, stylists=stylists), ensure_ascii=False)
-    body = pagehead("Reservation", "WEB予約", "24時間いつでも、空き状況を見ながらご予約いただけます。当日のご予約はお電話が確実です。", "img/shampoo-new.jpg") + f'''
+    body = pagehead("Reservation", "ご予約", "ご予約・お問い合わせは、<br>LINEまたはお電話で承ります。", "img/shampoo-new.jpg") + f'''
 <section class="sec">
   <div class="wrap">
     <div class="resv">
-      <div class="bk rv" id="booking" data-line-id="{SHOP['line_id']}" aria-live="polite"></div>
-      <script type="application/json" id="booking-data">{data}</script>
+      <div class="side">
+        <div class="box rv" id="resv-line"><h2>LINEでのご予約・お問い合わせ</h2><p>当サロンへのご予約・お問い合わせは、LINE公式アカウントからご連絡ください。個室のご希望や髪のお悩み相談もお気軽にどうぞ。</p><p style="margin-top:10px">はじめてご連絡いただく場合は、次の3点をお知らせください。</p><ol style="margin-top:6px"><li>お名前</li><li>ご希望日・時間</li><li>ご希望のメニュー<span style="display:inline-block">（クーポンメニュー利用有り・無し）</span></li></ol><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%;margin-top:14px">{ICON['line']}LINEで友だち追加</a><p class="hp" style="margin-top:8px">LINE ID検索：{SHOP['line_id']}<span style="display:inline-block">（@を忘れずにご入力ください）</span></p></div>
+        <div class="box rv"><h2>LINEでご予約の際のお願い</h2><p>メッセージをいただいただけでは、ご予約は完了ではございません。当店からの折り返しをもって、ご予約完了とさせていただきます。返信は3営業日以内とさせていただきますので、お時間に余裕をもってご予約くださいませ。</p><p style="margin-top:10px">当日のご連絡ですと、施術中の場合すぐに返信ができません。お急ぎのお問い合わせは、営業時間内に直接お電話ください。</p></div>
+      </div>
       <aside class="side">
-        <div class="box rv"><h2>お電話でのご予約</h2><a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a><p>受付 {SHOP['hours']}／定休日 {SHOP['closed']}。当日のご予約・お急ぎの方はお電話が確実です。</p><a class="btn btn-tel" href="{SHOP['tel_href']}" style="width:100%">{ICON['tel']}電話をかける</a></div>
-        <div class="box rv"><h2>LINEでのご予約・ご相談</h2><p>個室をご希望の方、着付け・ブライダルシェービング、髪のお悩み相談は公式LINEからどうぞ。①お名前 ②ご希望日・時間 ③ご希望のメニュー（クーポンメニュー利用有り・無し）の3点をお知らせください。</p><a class="btn btn-line" href="{SHOP['line_add']}" target="_blank" rel="noopener" style="width:100%">{ICON['line']}LINEで友だち追加</a><p class="hp" style="margin-top:8px">LINE ID検索：{SHOP['line_id']}（@を忘れずに）</p></div>
+        <div class="box rv"><h2>お電話でのご予約</h2><a class="tel" href="{SHOP['tel_href']}">{SHOP['tel']}</a><p>受付 {SHOP['hours']}<br>定休日 {SHOP['closed']}<br>当日・お急ぎの方はお電話が確実です。</p><a class="btn btn-tel" href="{SHOP['tel_href']}" style="width:100%;margin-top:12px">{ICON['tel']}電話をかける</a></div>
         <div class="box rv"><h2>ご予約に関するお願い</h2><ol><li>ご連絡無しで予約時間から大幅に遅刻された場合、施術内容によりお断りすることがあります。</li><li>無断キャンセルの場合、次回からのご予約を制限させていただくことがあります。</li><li>早朝のご予約は別途料金にて承ります。前日のお問い合わせですと承れないことが多いため、お早めにご連絡ください。</li></ol></div>
         <p class="hp rv">ホットペッパービューティーからのネット予約は<a href="{SHOP['hpb']}" target="_blank" rel="noopener" style="text-decoration:underline">こちら</a>。</p>
       </aside>
     </div>
   </div>
-</section>
-<script src="assets/booking.js?v={VER}" defer></script>'''
-    return page("reserve.html", "WEB予約", "RE・BORN hair & relax のWEB予約。空き状況カレンダーからメニュー・スタイリスト・日時を選んで24時間ご予約いただけます。", body)
+</section>'''
+    return page("reserve.html", "ご予約", "RE・BORN hair & relax のご予約・お問い合わせ。LINE公式アカウントまたはお電話（0800-800-8835）で承ります。", body)
 
 NEWS = [
     ("2026-09-10", "お知らせ", "店内を一部改装しました", "シャンプー台と個室を新しくしました。より落ち着いてお過ごしいただける空間になりましたので、ぜひご来店ください。", "img/room-new.jpg"),
